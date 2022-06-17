@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using UnityEngine;
 
 public class PlayerLook : MonoBehaviour
 {
-    private PlayerInput playerInput;
     private Vector3 _mouseInput;
     private float xRotation = 0f;
     private float xClamp = 75f;
@@ -17,22 +17,18 @@ public class PlayerLook : MonoBehaviour
 
     private void OnEnable()
     {
-        playerInput.Enable();
         EventManager.DisableAllMovement += DisableMouseInput;
         EventManager.EnableAllMovement += EnableMouseInput;
     }
 
     private void OnDisable()
     {
-        playerInput.Disable();
         EventManager.DisableAllMovement -= DisableMouseInput;
         EventManager.EnableAllMovement -= EnableMouseInput;
     }
 
     private void Awake()
     {
-        playerInput = new PlayerInput();
-        
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -58,11 +54,11 @@ public class PlayerLook : MonoBehaviour
 
     private void DisableMouseInput()
     {
-        playerInput.Player.MouseVector.Disable();
+        InputHandler.instance.inputActions.Player.MouseVector.Disable();
     }
     
     private void EnableMouseInput()
     {
-        playerInput.Player.MouseVector.Enable();
+        InputHandler.instance.inputActions.Player.MouseVector.Enable();
     }
 }

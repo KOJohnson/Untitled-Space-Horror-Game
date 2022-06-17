@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -14,26 +15,12 @@ public class WeaponSway : MonoBehaviour
     private PlayerInput playerInput;
 
     #region MonoBehaviour CallBacks
-    private void OnEnable()
-    {
-        playerInput.Enable();
-    }
-
-    private void OnDisable()
-    {
-        playerInput.Disable();
-    }
 
     private void Start()
     {
         originRotation = transform.localRotation;
     }
 
-    private void Awake()
-    {
-        playerInput = new PlayerInput();
-    }
-    
     void Update()
     {
         UpdateSway();
@@ -45,7 +32,7 @@ public class WeaponSway : MonoBehaviour
 
     private void UpdateSway()
     {
-        mouseInput = playerInput.Player.MouseVector.ReadValue<Vector2>();
+        mouseInput = InputHandler.instance.inputActions.Player.MouseVector.ReadValue<Vector2>();
         float mouseX = mouseInput.x;
         float mouseY = mouseInput.y;
 
@@ -53,7 +40,7 @@ public class WeaponSway : MonoBehaviour
         Quaternion xAxisAdjsutment = Quaternion.AngleAxis(-intensity * mouseX , Vector3.up);
         Quaternion yAxisAdjsutment = Quaternion.AngleAxis(intensity * mouseY , Vector3.right);
         Quaternion targetRotation = originRotation * xAxisAdjsutment * yAxisAdjsutment;
-    
+
         //rotate towards target rotation 
         transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, Time.deltaTime * smooth);
 

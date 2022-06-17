@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Core;
 using UnityEngine;
 
 public class WeaponSwapper : MonoBehaviour
@@ -9,27 +10,13 @@ public class WeaponSwapper : MonoBehaviour
     public float scrollWheelDelay;
     private float nextFire;
 
-    private PlayerInput playerInput;
-
-    private void OnEnable()
-    {
-        playerInput.Enable();
-    }
-
-    private void OnDisable()
-    {
-        playerInput.Disable();
-    }
-
     private void Awake()
     {
-        playerInput = new PlayerInput();
-        
-        playerInput.Player.WeaponSwap.performed += _ => ScrollWheelSelect();
-        playerInput.Player.PrimaryWeapon.performed += _ => currentWeapon = 0;
-        playerInput.Player.SecondaryWeapon.performed += _ => currentWeapon = 1;
-        playerInput.Player.TertiaryWeapon.performed += _ => currentWeapon = 2;
-        playerInput.Player.HolsterWeapon.performed += _ => currentWeapon = 3;
+        InputHandler.instance.inputActions.Player.WeaponSwap.performed += _ => ScrollWheelSelect();
+        InputHandler.instance.inputActions.Player.PrimaryWeapon.performed += _ => currentWeapon = 0;
+        InputHandler.instance.inputActions.Player.SecondaryWeapon.performed += _ => currentWeapon = 1;
+        InputHandler.instance.inputActions.Player.TertiaryWeapon.performed += _ => currentWeapon = 2;
+        InputHandler.instance.inputActions.Player.HolsterWeapon.performed += _ => currentWeapon = 3;
     }
 
     // Update is called once per frame
@@ -65,7 +52,7 @@ public class WeaponSwapper : MonoBehaviour
         {
             nextFire = Time.time + scrollWheelDelay;
             
-            var x = playerInput.Player.WeaponSwap.ReadValue<Vector2>();
+            var x = InputHandler.instance.inputActions.Player.WeaponSwap.ReadValue<Vector2>();
             float scrollValue = x.y;
 
             switch (scrollValue)

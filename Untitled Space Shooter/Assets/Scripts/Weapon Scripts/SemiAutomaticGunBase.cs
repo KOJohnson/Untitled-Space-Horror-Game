@@ -1,4 +1,5 @@
 using System.Collections;
+using Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,11 +38,6 @@ public class SemiAutomaticGunBase : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         anim = GetComponent<Animator>();
         camera = Camera.main;
-    }
-
-    void OnFire(InputAction.CallbackContext context)
-    {
-        isFiring = context.ReadValueAsButton();
     }
 
     private void Update()

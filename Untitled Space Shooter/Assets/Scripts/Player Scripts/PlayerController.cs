@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,11 +10,10 @@ public class PlayerController : MonoBehaviour
     private CharacterController characterController;
     private PlayerInput playerInput;
 
-    private Vector3 movementInput;
+    public Vector3 movementInput;
     private Vector3 movementDirection;
     private Vector3 slopeMovementDirection;
     private RaycastHit slopeHit;
-    public Vector3 movement;
 
     [SerializeField] private float gravityValue = -5f;
     public Vector3 playerVelocity = Vector3.zero;
@@ -54,21 +53,18 @@ public class PlayerController : MonoBehaviour
     
     private void OnEnable()
     {
-        playerInput.Enable();
         EventManager.DisableAllMovement += DisableMovement;
         EventManager.EnableAllMovement += EnableMovement;
     }
 
     private void OnDisable()
     {
-        playerInput.Disable();
         EventManager.DisableAllMovement -= DisableMovement;
         EventManager.EnableAllMovement -= EnableMovement;
     }
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
-        playerInput = new PlayerInput();
     }
     
     private void Update()
@@ -85,10 +81,10 @@ public class PlayerController : MonoBehaviour
         switch (groundedPlayer && !onSlope)
         {
             case true:
-                characterController.Move(movementDirection * currentSpeed * Time.deltaTime);
+                characterController.Move(movementDirection * (currentSpeed * Time.deltaTime));
                 break;
             case false:
-                characterController.Move(movementDirection * airSpeed * Time.deltaTime);
+                characterController.Move(movementDirection * (airSpeed * Time.deltaTime));
                 break;
         }
     }
@@ -100,12 +96,12 @@ public class PlayerController : MonoBehaviour
     
     private void DisableMovement()
     {
-        playerInput.Player.Move.Disable();
+        InputHandler.instance.inputActions.Player.Move.Disable();
     }
     
     private void EnableMovement()
     {
-        playerInput.Player.Move.Enable();
+        InputHandler.instance.inputActions.Player.Move.Enable();
     }
     
      private bool IsGrounded()
@@ -132,7 +128,7 @@ public class PlayerController : MonoBehaviour
     
     private void MovementInput()
     {
-        movementInput = playerInput.Player.Move.ReadValue<Vector2>();
+        movementInput = InputHandler.instance.inputActions.Player.Move.ReadValue<Vector2>();
         movementDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
         if (!useAcceleration)
@@ -157,7 +153,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (playerInput.Player.Jump.WasPressedThisFrame() && groundedPlayer)
+        if (InputHandler.instance.inputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
             playerVelocity.y = initialJumpVelocity;
         }

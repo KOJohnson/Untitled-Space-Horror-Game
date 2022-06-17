@@ -5,6 +5,8 @@ public class DecontaminationDoor : MonoBehaviour, IInteractables
     private Animator anim;
     private static readonly int OpenDoor = Animator.StringToHash("openDoor");
 
+    [SerializeField] private GameObject entryTrigger;
+
     private bool isDoorOpen;
 
     private void Awake()
@@ -16,6 +18,7 @@ public class DecontaminationDoor : MonoBehaviour, IInteractables
     {
         if (!isDoorOpen)
         {
+            entryTrigger.SetActive(true);
             anim.SetBool(OpenDoor, true);
         }
     }
