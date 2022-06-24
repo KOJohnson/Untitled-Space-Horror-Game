@@ -37,12 +37,12 @@ namespace Core
 
   private void DisableInput()
   {
-   inputActions.Disable();
+   inputActions.Player.Disable();
   }
  
   private void EnableInput()
   {
-   inputActions.Enable();
+   inputActions.Player.Enable();
   }
  
  }

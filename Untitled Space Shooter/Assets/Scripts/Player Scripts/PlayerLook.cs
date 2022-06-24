@@ -27,12 +27,6 @@ public class PlayerLook : MonoBehaviour
         EventManager.EnableAllMovement -= EnableMouseInput;
     }
 
-    private void Awake()
-    {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
     // Update is called once per frame
     private void Update()
     {

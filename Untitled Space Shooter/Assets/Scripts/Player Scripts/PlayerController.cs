@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public int frameRate;
     private CharacterController characterController;
     private PlayerInput playerInput;
 
@@ -69,8 +68,7 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
-        //move this to game manager later
-        Application.targetFrameRate = frameRate;
+        
         
         groundedPlayer = IsGrounded();
         isHeadHitting = HeadCheck();

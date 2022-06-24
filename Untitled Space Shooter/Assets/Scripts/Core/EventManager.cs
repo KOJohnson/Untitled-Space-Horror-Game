@@ -9,6 +9,8 @@ namespace Core
         public static event Action EnableAllMovement;
         public static event Action DisableAllInput;
         public static event Action EnableAllInput;
+        public static event Action EnableCursor;
+        public static event Action DisableCursor;
 
         public static void OnDisableAllMovement()
         {
@@ -30,5 +32,14 @@ namespace Core
             DisableAllInput?.Invoke();
         }
 
+        public static void OnEnableCursor()
+        {
+            EnableCursor?.Invoke();
+        }
+
+        public static void OnDisableCursor()
+        {
+            DisableCursor?.Invoke();
+        }
     }
 }

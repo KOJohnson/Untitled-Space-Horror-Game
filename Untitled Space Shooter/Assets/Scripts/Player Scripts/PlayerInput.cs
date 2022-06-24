@@ -367,6 +367,24 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Press"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MouseVector"",
+                    ""type"": ""Value"",
+                    ""id"": ""53e1537a-26a8-4ea8-bdb6-bef1d16744bf"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LeftMouse"",
+                    ""type"": ""Button"",
+                    ""id"": ""8fdce847-1037-4904-9417-52a4e3a83920"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -378,6 +396,28 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2a3887fa-5498-4af4-b879-e3a9f0e3dbf0"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MouseVector"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3a6781cf-fb60-4746-95d8-5cc7af02eb2e"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LeftMouse"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -405,6 +445,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         // Interaction
         m_Interaction = asset.FindActionMap("Interaction", throwIfNotFound: true);
         m_Interaction_Interact = m_Interaction.FindAction("Interact", throwIfNotFound: true);
+        m_Interaction_MouseVector = m_Interaction.FindAction("MouseVector", throwIfNotFound: true);
+        m_Interaction_LeftMouse = m_Interaction.FindAction("LeftMouse", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -602,11 +644,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Interaction;
     private IInteractionActions m_InteractionActionsCallbackInterface;
     private readonly InputAction m_Interaction_Interact;
+    private readonly InputAction m_Interaction_MouseVector;
+    private readonly InputAction m_Interaction_LeftMouse;
     public struct InteractionActions
     {
         private @PlayerInput m_Wrapper;
         public InteractionActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Interact => m_Wrapper.m_Interaction_Interact;
+        public InputAction @MouseVector => m_Wrapper.m_Interaction_MouseVector;
+        public InputAction @LeftMouse => m_Wrapper.m_Interaction_LeftMouse;
         public InputActionMap Get() { return m_Wrapper.m_Interaction; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -619,6 +665,12 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Interact.started -= m_Wrapper.m_InteractionActionsCallbackInterface.OnInteract;
                 @Interact.performed -= m_Wrapper.m_InteractionActionsCallbackInterface.OnInteract;
                 @Interact.canceled -= m_Wrapper.m_InteractionActionsCallbackInterface.OnInteract;
+                @MouseVector.started -= m_Wrapper.m_InteractionActionsCallbackInterface.OnMouseVector;
+                @MouseVector.performed -= m_Wrapper.m_InteractionActionsCallbackInterface.OnMouseVector;
+                @MouseVector.canceled -= m_Wrapper.m_InteractionActionsCallbackInterface.OnMouseVector;
+                @LeftMouse.started -= m_Wrapper.m_InteractionActionsCallbackInterface.OnLeftMouse;
+                @LeftMouse.performed -= m_Wrapper.m_InteractionActionsCallbackInterface.OnLeftMouse;
+                @LeftMouse.canceled -= m_Wrapper.m_InteractionActionsCallbackInterface.OnLeftMouse;
             }
             m_Wrapper.m_InteractionActionsCallbackInterface = instance;
             if (instance != null)
@@ -626,6 +678,12 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Interact.started += instance.OnInteract;
                 @Interact.performed += instance.OnInteract;
                 @Interact.canceled += instance.OnInteract;
+                @MouseVector.started += instance.OnMouseVector;
+                @MouseVector.performed += instance.OnMouseVector;
+                @MouseVector.canceled += instance.OnMouseVector;
+                @LeftMouse.started += instance.OnLeftMouse;
+                @LeftMouse.performed += instance.OnLeftMouse;
+                @LeftMouse.canceled += instance.OnLeftMouse;
             }
         }
     }
@@ -650,5 +708,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     public interface IInteractionActions
     {
         void OnInteract(InputAction.CallbackContext context);
+        void OnMouseVector(InputAction.CallbackContext context);
+        void OnLeftMouse(InputAction.CallbackContext context);
     }
 }
