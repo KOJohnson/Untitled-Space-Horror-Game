@@ -39,9 +39,7 @@ public class PlayerController : MonoBehaviour
     
     [Header("Ground Detection Settings")]
     public LayerMask whatIsGround;
-    public LayerMask whatIsRoof;
     public Transform checkSphere;
-    public Transform headCheckRay;
     [SerializeField] private float sphereRadius;
     [SerializeField] private float rayLength = 0.4f;
     [SerializeField] private bool groundedPlayer;
@@ -68,10 +66,7 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
-        
-        
         groundedPlayer = IsGrounded();
-        isHeadHitting = HeadCheck();
 
         MovementInput();
         HandleGravity();
@@ -102,17 +97,11 @@ public class PlayerController : MonoBehaviour
         InputHandler.instance.inputActions.Player.Move.Enable();
     }
     
-     private bool IsGrounded()
+    private bool IsGrounded()
     {
         return Physics.CheckSphere(checkSphere.position, sphereRadius, whatIsGround);
     }
 
-    private bool HeadCheck()
-    {
-        Debug.DrawRay(headCheckRay.position, Vector3.up * rayLength, Color.red);
-        return Physics.Raycast(headCheckRay.position, Vector3.up, out RaycastHit hit, rayLength, whatIsRoof);
-    }
-    
     private void HandleGravity()
     {
         if (groundedPlayer && playerVelocity.y < 0)

@@ -145,9 +145,18 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Aim/Zoom"",
+                    ""name"": ""Aim"",
                     ""type"": ""Button"",
                     ""id"": ""9431bb3f-ba30-487c-b049-c9ab725c84ea"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""880085e6-223d-4c21-b24c-f45f859bbd84"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -349,7 +358,18 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Aim/Zoom"",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""adfd65cd-12ab-4720-9e0f-1b3d3a27d49c"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -441,7 +461,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_TertiaryWeapon = m_Player.FindAction("TertiaryWeapon", throwIfNotFound: true);
         m_Player_HolsterWeapon = m_Player.FindAction("HolsterWeapon", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
-        m_Player_AimZoom = m_Player.FindAction("Aim/Zoom", throwIfNotFound: true);
+        m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
+        m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         // Interaction
         m_Interaction = asset.FindActionMap("Interaction", throwIfNotFound: true);
         m_Interaction_Interact = m_Interaction.FindAction("Interact", throwIfNotFound: true);
@@ -519,7 +540,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_TertiaryWeapon;
     private readonly InputAction m_Player_HolsterWeapon;
     private readonly InputAction m_Player_Reload;
-    private readonly InputAction m_Player_AimZoom;
+    private readonly InputAction m_Player_Aim;
+    private readonly InputAction m_Player_Sprint;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -537,7 +559,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @TertiaryWeapon => m_Wrapper.m_Player_TertiaryWeapon;
         public InputAction @HolsterWeapon => m_Wrapper.m_Player_HolsterWeapon;
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
-        public InputAction @AimZoom => m_Wrapper.m_Player_AimZoom;
+        public InputAction @Aim => m_Wrapper.m_Player_Aim;
+        public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -586,9 +609,12 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Reload.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
                 @Reload.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
                 @Reload.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnReload;
-                @AimZoom.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAimZoom;
-                @AimZoom.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAimZoom;
-                @AimZoom.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAimZoom;
+                @Aim.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Sprint.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
+                @Sprint.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
+                @Sprint.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -632,9 +658,12 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Reload.started += instance.OnReload;
                 @Reload.performed += instance.OnReload;
                 @Reload.canceled += instance.OnReload;
-                @AimZoom.started += instance.OnAimZoom;
-                @AimZoom.performed += instance.OnAimZoom;
-                @AimZoom.canceled += instance.OnAimZoom;
+                @Aim.started += instance.OnAim;
+                @Aim.performed += instance.OnAim;
+                @Aim.canceled += instance.OnAim;
+                @Sprint.started += instance.OnSprint;
+                @Sprint.performed += instance.OnSprint;
+                @Sprint.canceled += instance.OnSprint;
             }
         }
     }
@@ -703,7 +732,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnTertiaryWeapon(InputAction.CallbackContext context);
         void OnHolsterWeapon(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
-        void OnAimZoom(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
+        void OnSprint(InputAction.CallbackContext context);
     }
     public interface IInteractionActions
     {

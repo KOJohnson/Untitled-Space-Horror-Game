@@ -7,13 +7,21 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
+public enum WeaponTypes
+{
+    NormalWeapon,
+    EnergyWeapon,
+    ChargeWeapon
+}
 public class FullyAutomatic : MonoBehaviour
 {
+    public WeaponTypes myWeaponType;
+    
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
     public Camera camera;
-    
+
     [SerializeField]private AudioSource audioSource;
     
     [SerializeField]private bool firing;
@@ -23,17 +31,14 @@ public class FullyAutomatic : MonoBehaviour
     [SerializeField]private float currentAmmoCount;
     [SerializeField]private float maxAmmoAmount;
     [SerializeField]private float reservesAmmoCount;
-
-    public Material emission;
+    
     private float nextFire;
     private Animator anim;
-
-    [Header("Depth of Field Settings")]
-    public DepthOfField dofComponent;
 
     [Header("ADS Settings")]
     public float defaultFOV;
     public float adsFOV;
+    public float adsSpeed;
     public float adsRecoilX;
     public float adsRecoilY;
     public float adsRecoilZ;
@@ -47,7 +52,7 @@ public class FullyAutomatic : MonoBehaviour
     public float returnSpeed;
 
     public Transform firePoint;
-    private static readonly int IsReloading = Animator.StringToHash("isReloading");
+    private static readonly int IsReloadingHash = Animator.StringToHash("isReloading");
     
     private void OnEnable()
     {
@@ -63,11 +68,10 @@ public class FullyAutomatic : MonoBehaviour
         InputHandler.instance.inputActions.Player.Fire.performed += OnFire;
         InputHandler.instance.inputActions.Player.Fire.canceled += OnFire;
 
-        InputHandler.instance.inputActions.Player.AimZoom.performed += OnZoom;
-        InputHandler.instance.inputActions.Player.AimZoom.canceled += OnZoomCancel;
+        InputHandler.instance.inputActions.Player.Aim.performed += _ => isAiming = true;
+        InputHandler.instance.inputActions.Player.Aim.canceled += _ => isAiming = false;
     }
 
-    // Start is called before the first frame update
     private void Start()
     {
         defaultFOV = camera.fieldOfView;
@@ -77,21 +81,26 @@ public class FullyAutomatic : MonoBehaviour
     private void OnFire(InputAction.CallbackContext context)
     {
         firing = context.ReadValueAsButton();
-    }   
-    
-    private void OnZoom(InputAction.CallbackContext context)
-    {
-        isAiming = context.ReadValueAsButton();
-    }
-    
-    private void OnZoomCancel(InputAction.CallbackContext context)
-    {
-        isAiming = context.ReadValueAsButton();
     }
 
     // Update is called once per frame
     private void Update()
     {
+        if (myWeaponType == WeaponTypes.NormalWeapon)
+        {
+            //Do Normal Shooting
+        }
+        
+        if (myWeaponType == WeaponTypes.EnergyWeapon)
+        {
+            //Do laser Shooting
+        }
+        
+        if (myWeaponType == WeaponTypes.ChargeWeapon)
+        {
+            //Do Charged Shooting
+        }
+        
         recoilScript.GunRotation(returnSpeed, snappiness);
 
         camera.fieldOfView = isAiming ? adsFOV : defaultFOV;
@@ -221,13 +230,13 @@ public class FullyAutomatic : MonoBehaviour
     
     private void Reloading()
     {
-        anim.SetBool(IsReloading, true);
+        anim.SetBool(IsReloadingHash, true);
         isReloading = true;
     }
     
     private void NotReloading()
     {
-        anim.SetBool("isReloading", false);
+        anim.SetBool(IsReloadingHash, false);
         isReloading = false;
     }
 

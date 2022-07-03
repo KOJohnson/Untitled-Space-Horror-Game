@@ -58,9 +58,8 @@ public class EnergyWeaponBase : MonoBehaviour
         }
 
         if (overheated)
-        {
             firing = false;
-        }
+        
     }
 
     void Shoot()
@@ -77,9 +76,8 @@ public class EnergyWeaponBase : MonoBehaviour
             
             
             //Spawn Tracer
-            var firePosition = firePoint.position;
-            var tracer = Instantiate(energyWeapons.bulletTracer, firePosition, Quaternion.identity);
-            tracer.AddPosition(firePosition);
+            var tracer = Instantiate(energyWeapons.bulletTracer, firePoint.position, Quaternion.identity);
+            tracer.AddPosition(firePoint.position);
             
             RaycastHit hit;
             Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));

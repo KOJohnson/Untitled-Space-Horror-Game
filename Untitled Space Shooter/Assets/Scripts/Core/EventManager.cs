@@ -11,7 +11,18 @@ namespace Core
         public static event Action EnableAllInput;
         public static event Action EnableCursor;
         public static event Action DisableCursor;
+        public static event Action EnableCrosshair;
+        public static event Action DisableCrosshair;
 
+        public static void OnEnableCrosshair()
+        {
+            EnableCrosshair?.Invoke();
+        }
+        
+        public static void OnDisableCrosshair()
+        {
+            DisableCrosshair?.Invoke();
+        }
         public static void OnDisableAllMovement()
         {
             DisableAllMovement?.Invoke();

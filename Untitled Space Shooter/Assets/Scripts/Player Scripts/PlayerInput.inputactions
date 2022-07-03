@@ -123,9 +123,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Aim/Zoom",
+                    "name": "Aim",
                     "type": "Button",
                     "id": "9431bb3f-ba30-487c-b049-c9ab725c84ea",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "880085e6-223d-4c21-b24c-f45f859bbd84",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -327,7 +336,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Aim/Zoom",
+                    "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "adfd65cd-12ab-4720-9e0f-1b3d3a27d49c",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
