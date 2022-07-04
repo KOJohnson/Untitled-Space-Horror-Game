@@ -58,10 +58,10 @@ public class WeaponSwapper : MonoBehaviour
             switch (scrollValue)
             {
                 case > 0:
-                    currentWeapon++;
+                    currentWeapon--;
                     break;
                 case < 0:
-                    currentWeapon--;
+                    currentWeapon++;
                     break;
             }
         }

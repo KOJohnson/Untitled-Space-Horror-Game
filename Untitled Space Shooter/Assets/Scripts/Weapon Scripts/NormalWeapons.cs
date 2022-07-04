@@ -4,6 +4,7 @@
 public class NormalWeapons : ScriptableObject
 {
     public float weaponDamage;
+    public float chargeDamage;
     public float headshotMultiplier;
     public float fireRate;
     public float maxDistance;

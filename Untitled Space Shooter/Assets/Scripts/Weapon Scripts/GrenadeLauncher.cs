@@ -53,7 +53,7 @@ public class GrenadeLauncher : MonoBehaviour
     void Start()
     {
         playerInput.Player.Fire.started += _ => charging = true;
-        playerInput.Player.Fire.canceled += _ => Shoot();
+        playerInput.Player.Fire.canceled += _ => ChargeShoot();
     }
 
     // Update is called once per frame
@@ -78,7 +78,7 @@ public class GrenadeLauncher : MonoBehaviour
             currentCharge = maxCharge;
         }
     }
-    private void Shoot()
+    private void ChargeShoot()
     {
         charging = false;
         

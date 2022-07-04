@@ -16,10 +16,10 @@ MonoBehaviour:
   headshotMultiplier: 1.8
   fireRate: 0.2
   maxDistance: 100
-  overheatSpeed: 0
-  maxHeatCapacity: 0
+  overheatSpeed: 15
+  maxHeatCapacity: 100
   minHeatCapacity: 0
-  minHeatThreshold: 0
+  minHeatThreshold: 25
   fireSound: {fileID: 8300000, guid: 5ff5bd936a30a904da907f35c8dd382e, type: 3}
   bulletTracer: {fileID: 3349049791327416833, guid: 923058c36317b0a459fbb4b6edc4bf61,
     type: 3}
