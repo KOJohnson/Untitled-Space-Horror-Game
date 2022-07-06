@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4eaff810df5175f45a19cf51df4400e4, type: 3}
-  m_Name: BigRifle
+  m_Name: Burst Rifle
   m_EditorClassIdentifier: 
-  weaponDamage: 45
+  weaponDamage: 24
+  chargeDamage: 0
   headshotMultiplier: 1.8
-  fireRate: 0.2
+  fireRate: 0.4
   maxDistance: 100
   overheatSpeed: 15
   maxHeatCapacity: 100

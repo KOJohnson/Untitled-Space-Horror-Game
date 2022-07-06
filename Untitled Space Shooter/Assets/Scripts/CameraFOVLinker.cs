@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,12 @@ public class CameraFOVLinker : MonoBehaviour
     
     private void Update()
     {
+        if (fpsCam == null)
+        {
+            Debug.LogError("Missing FPS Camera");
+            return;
+        }
+        
         fpsCam.fieldOfView = mainCamera.fieldOfView;
     }
 }

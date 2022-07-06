@@ -9,15 +9,23 @@ using UnityEngine.InputSystem;
 public enum WeaponTypes
 {
     NormalWeapon,
-    EnergyWeapon,
-    ChargeWeapon
+    EnergyWeapon
 }
-public class FullyAutomatic : MonoBehaviour
+
+public enum FireModes
+{
+    FullyAutomatic,
+    SemiAutomatic,
+    BurstFire
+}
+public class WeaponCreator : MonoBehaviour
 {
     public WeaponTypes myWeaponType;
+    public FireModes myFireModes;
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
+    public PlayerLook playerLook;
     public Camera camera;
 
     [SerializeField]private AudioSource audioSource;
@@ -31,15 +39,16 @@ public class FullyAutomatic : MonoBehaviour
     private float nextFire;
     private Animator anim;
     
-    [Header("Normal Weapon Settings")]
+    [Header("Normal Weapon Parameters")]
     [SerializeField]private int currentAmmoCount;
     [SerializeField]private int maxAmmoAmount;
     [SerializeField]private int reservesAmmoCount;
+    [SerializeField]private GameObject AmmoHUD;
     [SerializeField]private GameObject AmmoPanel;
     [SerializeField]private TextMeshProUGUI AmmoCountCurrent;
     [SerializeField]private TextMeshProUGUI AmmoCountReserves;
     
-    [Header("EnergyWeapon Settings")]
+    [Header("EnergyWeapon Parameters")]
     public bool overheated;
     public float currentHeatValue;
     [SerializeField]private GameObject EnergyWeaponPanel;
@@ -47,34 +56,38 @@ public class FullyAutomatic : MonoBehaviour
     public float fillSpeed = 2;
     public float target = 1;
     
-    [Header("ChargeWeapon Settings")] 
-    public bool isCharging;
-    public float minCharge;
-    public float maxCharge;
-    public float chargeSpeed;
-    public float currentCharge;
-    private RaycastHit lastHit;
+    [Header("Burst Parameters")] 
+    [SerializeField]private bool isBursting;
+    [SerializeField]private int shotsPerBurst;
+    [SerializeField]private float timeBetweenBullets;
 
-    [Header("ADS Settings")]
-    public float defaultFOV;
-    public float adsFOV;
-    public float adsSpeed;
-    public float adsRecoilX;
-    public float adsRecoilY;
-    public float adsRecoilZ;
+    [Header("ADS Parameters")]
+    [SerializeField]private float adsSpeed;
+    [SerializeField]private float defaultFOV;
+    [SerializeField]private float adsFOV;
+    [SerializeField]private float adsRecoilX;
+    [SerializeField]private float adsRecoilY;
+    [SerializeField]private float adsRecoilZ;
+    private Coroutine aimRoutine;
     
-    [Header("Hip-fire Recoil Settings")] 
-    public float recoilX;
-    public float recoilY;
-    public float recoilZ;
+    [Header("Hip-fire Recoil Parameters")] 
+    [SerializeField]private float recoilX;
+    [SerializeField]private float recoilY;
+    [SerializeField]private float recoilZ;
     
-    [Header("Recoil Settings")]
-    public float snappiness;
-    public float returnSpeed;
+    [Header("Recoil Parameters")]
+    [SerializeField]private float snappiness;
+    [SerializeField]private float returnSpeed;
 
     private void OnEnable()
     {
         anim.Play("RifleEquipAnimation");
+        AmmoHUD.SetActive(true);
+    }
+    
+    private void OnDisable()
+    {
+        AmmoHUD.SetActive(false);
     }
 
     private void Awake()
@@ -85,9 +98,6 @@ public class FullyAutomatic : MonoBehaviour
 
         InputHandler.instance.inputActions.Player.Fire.performed += OnFire;
         InputHandler.instance.inputActions.Player.Fire.canceled += OnFire;
-
-        //InputHandler.instance.inputActions.Player.Fire.started += _ => isCharging = true;
-        //InputHandler.instance.inputActions.Player.Fire.canceled += _ => ChargeShoot();
 
         InputHandler.instance.inputActions.Player.Aim.performed += _ => isAiming = true;
         InputHandler.instance.inputActions.Player.Aim.canceled += _ => isAiming = false;
@@ -109,57 +119,57 @@ public class FullyAutomatic : MonoBehaviour
     private void Update()
     {
         recoilScript.GunRotation(returnSpeed, snappiness);
-        camera.fieldOfView = isAiming ? adsFOV : defaultFOV;
+        HandleAim();
         
+
         if (myWeaponType == WeaponTypes.NormalWeapon)
         {
+            //Enable UI for this weapon type
             AmmoPanel.SetActive(true);
             EnergyWeaponPanel.SetActive(false);
-            //enable UI for this weapon type
             
-            if (firing && currentAmmoCount > 0 && !isReloading)
-                Shoot();
-
-            if (currentAmmoCount < 0 )
-                currentAmmoCount = 0;
-
             if (InputHandler.instance.inputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
                 Reload();
+            
+            if (currentAmmoCount < 0 )
+                currentAmmoCount = 0;
+            
+            switch (myFireModes)
+            {
+                case FireModes.FullyAutomatic:
+                    if (firing && currentAmmoCount > 0 && !isReloading)
+                        Shoot();
+                    break;
+                case FireModes.SemiAutomatic:
+                    if (InputHandler.instance.inputActions.Player.Fire.WasPressedThisFrame() && currentAmmoCount > 0)
+                        Shoot();
+                    break;
+                case FireModes.BurstFire:
+                    if (InputHandler.instance.inputActions.Player.Fire.WasPressedThisFrame() && !isBursting && currentAmmoCount > 0)
+                        StartCoroutine(BurstFire());
+                    break;
+            }
         }
         
         if (myWeaponType == WeaponTypes.EnergyWeapon)
         {
             EnergyWeaponPanel.SetActive(true);
             AmmoPanel.SetActive(false);
-            
-            //enable UI for this weapon type
             UpdateHeatBar(currentHeatValue, weapons.maxHeatCapacity);
+
+            if (myFireModes == FireModes.FullyAutomatic)
+            {
+                if (firing && !overheated)
+                {
+                    EnergyShoot();
+                    WeaponOverHeat();
+                }  
+            }
             
-            if (firing && !overheated)
-            {
-                EnergyShoot();
-                WeaponOverHeat();
-            }
-            else if (!firing)
-            {
+            if (!firing)
                 WeaponCooldown();
-            }
             if (overheated)
                 firing = false;
-        }
-        
-        if (myWeaponType == WeaponTypes.ChargeWeapon)
-        {
-            EnergyWeaponPanel.SetActive(false);
-            AmmoPanel.SetActive(false);
-            //enable UI for this weapon type
-            
-            if (isCharging)
-            {
-                ChargeValue();
-                RayCast();
-            }
-            else currentCharge = 0f;
         }
     }
     
@@ -225,6 +235,96 @@ public class FullyAutomatic : MonoBehaviour
             
         }
     }
+
+    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit hit)
+    {
+        float time = 0;
+        Vector3 startPosisiton = trail.transform.position;
+
+        while (time < 1)
+        {
+            trail.transform.position = Vector3.Lerp(startPosisiton, hit.point, time);
+            time += Time.deltaTime / trail.time;
+            yield return null;
+        }
+
+        trail.transform.position = hit.point;
+    }
+    
+    private void Reload()
+    {
+        if (reservesAmmoCount <= 0)
+        {
+            reservesAmmoCount = 0;
+            return;
+        }
+        
+        anim.Play("BigRifle_Reload_01_Temp");
+    }
+
+    #region UI Update Methods
+    
+    private void UpdateAmmoCount(int currentAmmo, int reserveAmmo)
+    {
+        AmmoCountCurrent.text = currentAmmo.ToString();
+        AmmoCountReserves.text = reserveAmmo.ToString();
+    }
+    
+    private void UpdateHeatBar(float currentHeatValue, float maxHeatValue)
+    {
+        target = currentHeatValue / maxHeatValue;
+        CurrentHeatValue.fillAmount = Mathf.MoveTowards(CurrentHeatValue.fillAmount, target, fillSpeed * Time.deltaTime);
+    }
+    
+    #endregion
+
+    #region ADS Methods
+    
+    private void HandleAim()
+    {
+        
+        if (InputHandler.instance.inputActions.Player.Aim.WasPerformedThisFrame())
+        {
+            if (aimRoutine != null)
+            {
+                StopCoroutine(aimRoutine);
+                aimRoutine = null;
+            }
+            aimRoutine = StartCoroutine(AimRoutine(true));
+        }
+
+        if (InputHandler.instance.inputActions.Player.Aim.WasReleasedThisFrame())
+        {
+            if (aimRoutine != null)
+            {
+                StopCoroutine(aimRoutine);
+                aimRoutine = null;
+            }
+            aimRoutine = StartCoroutine(AimRoutine(false));
+        }
+    }
+
+    private IEnumerator AimRoutine(bool isEnter)
+    {
+        float targetFOV = isEnter ? adsFOV : defaultFOV;
+        float startingFOV = camera.fieldOfView;
+        float timeElapsed = 0;
+
+        while (timeElapsed < adsSpeed)
+        {
+            camera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / adsSpeed);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        camera.fieldOfView = targetFOV;
+        aimRoutine = null;
+    }
+    
+
+    #endregion
+    
+    #region Energy Weapon Methods
     
     private void EnergyShoot()
     {
@@ -274,44 +374,6 @@ public class FullyAutomatic : MonoBehaviour
             }
         }
     }
-
-    private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit hit)
-    {
-        float time = 0;
-        Vector3 startPosisiton = trail.transform.position;
-
-        while (time < 1)
-        {
-            trail.transform.position = Vector3.Lerp(startPosisiton, hit.point, time);
-            time += Time.deltaTime / trail.time;
-            yield return null;
-        }
-
-        trail.transform.position = hit.point;
-    }
-
-    private void UpdateAmmoCount(int currentAmmo, int reserveAmmo)
-    {
-        AmmoCountCurrent.text = currentAmmo.ToString();
-        AmmoCountReserves.text = reserveAmmo.ToString();
-    }
-    
-    private void UpdateHeatBar(float currentHeatValue, float maxHeatValue)
-    {
-        target = currentHeatValue / maxHeatValue;
-        CurrentHeatValue.fillAmount = Mathf.MoveTowards(CurrentHeatValue.fillAmount, target, fillSpeed * Time.deltaTime);
-    }
-    
-    private void Reload()
-    {
-        if (reservesAmmoCount <= 0)
-        {
-            reservesAmmoCount = 0;
-            return;
-        }
-        
-        anim.Play("BigRifle_Reload_01_Temp");
-    }
     
     private void WeaponOverHeat()
     {
@@ -343,51 +405,86 @@ public class FullyAutomatic : MonoBehaviour
         }
     }
 
-    #region ChargingWeapon
-    
-    private void ChargeValue()
-    {
-        currentCharge += chargeSpeed * Time.deltaTime;
+    #endregion
 
-        if (currentCharge > maxCharge)
-        {
-            currentCharge = maxCharge;
-        }
-    }
-    private void ChargeShoot()
+    #region Burst Weapon Methods
+    
+    private void BurstShoot()
     {
-        isCharging = false;
+        if (currentAmmoCount == 0)
+            return;
+            
         
-        if (currentCharge >= minCharge)
+        currentAmmoCount--;
+            
+        UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
+
+        if (isAiming)
+        {
+            recoilScript.RecoilFire(adsRecoilX, adsRecoilY, adsRecoilZ);
+        }
+        else
         {
             recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
-            print(currentCharge);
-            FireProjectile();
+        }
+           
+
+        //Play sound here
+        audioSource.PlayOneShot(weapons.fireSound);
+
+        //Play muzzle flash here
+
+
+        RaycastHit hit;
+        Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
+            
+        //Spawn Tracer
+        TrailRenderer trailRenderer = Instantiate(weapons.bulletTracer, firePoint.position, quaternion.identity);
+        StartCoroutine(SpawnTrail(trailRenderer, hit));
+            
+        //spawn decal
+        GameObject decal = bulletPool.GetPooledObject();
+            
+        if (decal != null)
+        {
+                
+            decal.transform.position = hit.point;
+            decal.SetActive(true);
+            decal.transform.rotation = Quaternion.LookRotation(hit.normal);
+                
+        }
+            
+        var isDamageable = hit.collider.GetComponent<IDamageable>();
+
+        if (hit.collider.GetComponent<IDamageable>() == null)return;
+            
+            
+        if (hit.collider.CompareTag("Head"))
+        {
+            isDamageable.TakeDamage(weapons.weaponDamage * weapons.headshotMultiplier);
+        }
+        else
+        {
+            isDamageable.TakeDamage(weapons.weaponDamage);
         }
     }
 
-    private void RayCast()
+    private IEnumerator BurstFire()
     {
-        Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        if (!Physics.Raycast(ray, out RaycastHit hit, weapons.maxDistance))return;
-
-        lastHit = hit;
+        isBursting = true;
+        for (int i = 0; i < shotsPerBurst; i++)
+        {
+            BurstShoot();
+            yield return new WaitForSeconds(timeBetweenBullets);
+            
+        }
+        yield return new WaitForSeconds(weapons.fireRate);
+        isBursting = false;
     }
-
-    private void FireProjectile()
-    {
-        print($"last hit object: {lastHit.collider.name}");
-        
-        var isDamageable = lastHit.collider.GetComponent<IDamageable>();
-
-        if (lastHit.collider.GetComponent<IDamageable>() == null)return;
-        isDamageable.TakeDamage(weapons.chargeDamage);
-    }
-    
 
     #endregion
-    
-    
+
     #region Animation Events
 
     private void AddAmmo()

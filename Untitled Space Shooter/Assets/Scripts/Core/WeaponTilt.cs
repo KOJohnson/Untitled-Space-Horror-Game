@@ -14,10 +14,8 @@ namespace Core
         public float tiltReturnSpeed;
         
         public float tiltAmount;
-        public float tiltMax;
-        public float tiltMin;
 
-        public Vector3 movementDirection;
+        private Vector3 movementDirection;
 
         private void Start()
         {
