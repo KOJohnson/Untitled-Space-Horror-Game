@@ -222,8 +222,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""76a6cacd-302a-4b37-9e15-5d4c23209ac3"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": ""MultiTap"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",

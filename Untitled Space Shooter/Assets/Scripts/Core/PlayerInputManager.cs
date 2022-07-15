@@ -33,6 +33,13 @@ namespace Core
             
             return _mouseInput;
         }
+
+        private Vector2 PlayerMovementInput()
+        {
+            var movementDirection = InputActions.Player.Move.ReadValue<Vector2>();
+
+            return movementDirection;
+        }
         
         public Vector2 InteractionMouseInput()
         {

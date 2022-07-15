@@ -17,7 +17,8 @@ public class PlayerController : MonoBehaviour
     
     [SerializeField] private float gravityValue = -5f;
     public Vector3 playerVelocity = Vector3.zero;
-
+    
+    [Header("Speed Parameters")]
     [SerializeField] private bool useAcceleration;
     [SerializeField] private float airSpeed = 4f;
     [SerializeField] private float currentSpeed;
@@ -25,8 +26,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float minSpeed;
     [SerializeField] private float acceleration = 5f;
     [SerializeField] private float deceleration = 5f;
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashTime;
     
-    
+    [Header("Jump Parameters")]
     [SerializeField] private float maxJumpHeight = 2.0f;
     [SerializeField] private float maxJumpTime = 0.5f;
     [SerializeField] private float initialJumpVelocity;
@@ -65,6 +68,11 @@ public class PlayerController : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _collider = GetComponent<CapsuleCollider>();
         SetupJump();
+
+        for (int i = 0; i < 100; i++)
+        {
+            print(i % 2 == 0 ? $"{i} is an even number" : $"{i} is an odd number");
+        }
         
     }
     
@@ -75,7 +83,7 @@ public class PlayerController : MonoBehaviour
         MovementInput();
         HandleGravity();
         HandleJump();
-        CrouchInputHandler();
+        //CrouchInputHandler();
 
         switch (groundedPlayer && !onSlope)
         {
@@ -90,6 +98,23 @@ public class PlayerController : MonoBehaviour
         if (isCrouching)
         {
             AdjustHeight(_characterController.height);
+        }
+
+        if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
+        {
+            if (!isCrouching)
+            {
+                isCrouching = true;
+            }
+            else if (isCrouching)
+            {
+                isCrouching = false;
+            }
+        }
+
+        if (PlayerInputManager.InputActions.Player.Dash.WasPressedThisFrame())
+        {
+            StartCoroutine(Dash());
         }
         // if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
         // {
@@ -110,6 +135,17 @@ public class PlayerController : MonoBehaviour
     private void EnableMovement()
     {
         PlayerInputManager.InputActions.Player.Move.Enable();
+    }
+
+    private IEnumerator Dash()
+    {
+        float startTime = Time.time;
+
+        while (Time.time < startTime + dashTime)
+        {
+            _characterController.Move(_movementDirection * dashSpeed * Time.deltaTime);
+            yield return null;
+        }
     }
     
     private bool IsGrounded()

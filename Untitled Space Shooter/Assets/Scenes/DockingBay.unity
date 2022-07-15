@@ -94483,6 +94483,8 @@ MonoBehaviour:
   minSpeed: 0
   acceleration: 30
   deceleration: 3
+  dashSpeed: 20
+  dashTime: 0.25
   maxJumpHeight: 1.5
   maxJumpTime: 0.8
   initialJumpVelocity: 12
