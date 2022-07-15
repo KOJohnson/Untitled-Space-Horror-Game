@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using UnityEngine;
 
 public class HeadShotHandler : MonoBehaviour, IDamageable

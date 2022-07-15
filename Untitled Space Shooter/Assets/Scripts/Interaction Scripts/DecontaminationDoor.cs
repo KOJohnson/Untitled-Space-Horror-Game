@@ -1,25 +1,26 @@
+using Core.Interfaces;
 using UnityEngine;
 
 public class DecontaminationDoor : MonoBehaviour, IInteractables
 {
-    private Animator anim;
+    private Animator _anim;
     private static readonly int OpenDoor = Animator.StringToHash("openDoor");
 
     [SerializeField] private GameObject entryTrigger;
 
-    private bool isDoorOpen;
+    private bool _isDoorOpen;
 
     private void Awake()
     {
-        anim = GetComponentInParent<Animator>();
+        _anim = GetComponentInParent<Animator>();
     }
 
     public void Interact()
     {
-        if (!isDoorOpen)
+        if (!_isDoorOpen)
         {
             entryTrigger.SetActive(true);
-            anim.SetBool(OpenDoor, true);
+            _anim.SetBool(OpenDoor, true);
         }
     }
     

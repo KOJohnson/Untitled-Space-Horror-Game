@@ -6,17 +6,17 @@ using UnityEngine;
 
 public class WeaponSwapper : MonoBehaviour
 {
-    public int currentWeapon;
-    public float scrollWheelDelay;
-    private float nextFire;
+    [SerializeField]private int currentWeapon;
+    [SerializeField]private float scrollWheelDelay;
+    private float _nextFire;
 
     private void Awake()
     {
-        InputHandler.instance.inputActions.Player.WeaponSwap.performed += _ => ScrollWheelSelect();
-        InputHandler.instance.inputActions.Player.PrimaryWeapon.performed += _ => currentWeapon = 0;
-        InputHandler.instance.inputActions.Player.SecondaryWeapon.performed += _ => currentWeapon = 1;
-        InputHandler.instance.inputActions.Player.TertiaryWeapon.performed += _ => currentWeapon = 2;
-        InputHandler.instance.inputActions.Player.HolsterWeapon.performed += _ => currentWeapon = 3;
+        PlayerInputManager.InputActions.Player.WeaponSwap.performed += _ => ScrollWheelSelect();
+        PlayerInputManager.InputActions.Player.PrimaryWeapon.performed += _ => currentWeapon = 0;
+        PlayerInputManager.InputActions.Player.SecondaryWeapon.performed += _ => currentWeapon = 1;
+        PlayerInputManager.InputActions.Player.TertiaryWeapon.performed += _ => currentWeapon = 2;
+        PlayerInputManager.InputActions.Player.HolsterWeapon.performed += _ => currentWeapon = 3;
     }
 
     // Update is called once per frame
@@ -48,12 +48,12 @@ public class WeaponSwapper : MonoBehaviour
 
     private void ScrollWheelSelect()
     {
-        if (Time.time > nextFire)
+        if (Time.time > _nextFire)
         {
-            nextFire = Time.time + scrollWheelDelay;
+            _nextFire = Time.time + scrollWheelDelay;
             
-            var x = InputHandler.instance.inputActions.Player.WeaponSwap.ReadValue<Vector2>();
-            float scrollValue = x.y;
+            var scrollWheelInput = PlayerInputManager.InputActions.Player.WeaponSwap.ReadValue<Vector2>();
+            float scrollValue = scrollWheelInput.y;
 
             switch (scrollValue)
             {

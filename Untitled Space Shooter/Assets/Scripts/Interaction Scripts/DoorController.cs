@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
+using Core.Interfaces;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour, IInteractables
 {
+    [SerializeField] private AnimationClip clip;
     [SerializeField] private bool isDoorOpen;
     private Animator animator;
 
@@ -15,18 +18,6 @@ public class DoorController : MonoBehaviour, IInteractables
         animator = door.GetComponent<Animator>();
     }
 
-    private void Start()
-    {
-        
-        
-    }
-
-    private void Update()
-    {
-        
-        
-    }
-
     public void Interact()
     {
         switch (isDoorOpen)
@@ -34,7 +25,7 @@ public class DoorController : MonoBehaviour, IInteractables
             case false:
                 //open the door....
                 isDoorOpen = true;
-                animator.Play("OpenDoor");
+                AnimationManager.Instance.PlayAnimation(clip);
                 break;
             case true:
                 isDoorOpen = false;

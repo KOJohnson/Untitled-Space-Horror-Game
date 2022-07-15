@@ -1,11 +1,14 @@
 using System;
 using System.Collections;
 using Core;
+using Core.Interfaces;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using PlayerInputManager = Core.PlayerInputManager;
+
 public enum WeaponTypes
 {
     NormalWeapon,
@@ -25,7 +28,6 @@ public class WeaponCreator : MonoBehaviour
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
-    public PlayerLook playerLook;
     public Camera camera;
 
     [SerializeField]private AudioSource audioSource;
@@ -36,8 +38,8 @@ public class WeaponCreator : MonoBehaviour
     [SerializeField]private bool isReloading;
     
     private static readonly int IsReloadingHash = Animator.StringToHash("isReloading");
-    private float nextFire;
-    private Animator anim;
+    private float _nextFire;
+    private Animator _anim;
     
     [Header("Normal Weapon Parameters")]
     [SerializeField]private int currentAmmoCount;
@@ -61,14 +63,15 @@ public class WeaponCreator : MonoBehaviour
     [SerializeField]private int shotsPerBurst;
     [SerializeField]private float timeBetweenBullets;
 
-    [Header("ADS Parameters")]
+    [Header("ADS Parameters")] 
+    [SerializeField]private bool canAim;
     [SerializeField]private float adsSpeed;
     [SerializeField]private float defaultFOV;
     [SerializeField]private float adsFOV;
     [SerializeField]private float adsRecoilX;
     [SerializeField]private float adsRecoilY;
     [SerializeField]private float adsRecoilZ;
-    private Coroutine aimRoutine;
+    private Coroutine _aimRoutine;
     
     [Header("Hip-fire Recoil Parameters")] 
     [SerializeField]private float recoilX;
@@ -81,32 +84,35 @@ public class WeaponCreator : MonoBehaviour
 
     private void OnEnable()
     {
-        anim.Play("RifleEquipAnimation");
+        _anim.Play("RifleEquipAnimation");
         AmmoHUD.SetActive(true);
+        AmmoPanel.SetActive(true);
+        UpdateAmmoCount(currentAmmoCount,reservesAmmoCount);
     }
     
     private void OnDisable()
     {
-        AmmoHUD.SetActive(false);
+        isBursting = false;
+        //AmmoHUD.SetActive(false);
     }
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        anim = GetComponent<Animator>();
+        _anim = GetComponent<Animator>();
         camera = Camera.main;
 
-        InputHandler.instance.inputActions.Player.Fire.performed += OnFire;
-        InputHandler.instance.inputActions.Player.Fire.canceled += OnFire;
+        PlayerInputManager.InputActions.Player.Fire.performed += OnFire;
+        PlayerInputManager.InputActions.Player.Fire.canceled += OnFire;
 
-        InputHandler.instance.inputActions.Player.Aim.performed += _ => isAiming = true;
-        InputHandler.instance.inputActions.Player.Aim.canceled += _ => isAiming = false;
+        PlayerInputManager.InputActions.Player.Aim.performed += _ => isAiming = true;
+        PlayerInputManager.InputActions.Player.Aim.canceled += _ => isAiming = false;
     }
 
     private void Start()
     {
         defaultFOV = camera.fieldOfView;
-        anim.Play("RifleEquipAnimation");
+        _anim.Play("RifleEquipAnimation");
         
         UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
     }
@@ -119,16 +125,18 @@ public class WeaponCreator : MonoBehaviour
     private void Update()
     {
         recoilScript.GunRotation(returnSpeed, snappiness);
-        HandleAim();
+        if (canAim)
+        {
+            HandleAim();
+        }
         
-
         if (myWeaponType == WeaponTypes.NormalWeapon)
         {
             //Enable UI for this weapon type
             AmmoPanel.SetActive(true);
             EnergyWeaponPanel.SetActive(false);
             
-            if (InputHandler.instance.inputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
+            if (PlayerInputManager.InputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
                 Reload();
             
             if (currentAmmoCount < 0 )
@@ -141,11 +149,11 @@ public class WeaponCreator : MonoBehaviour
                         Shoot();
                     break;
                 case FireModes.SemiAutomatic:
-                    if (InputHandler.instance.inputActions.Player.Fire.WasPressedThisFrame() && currentAmmoCount > 0)
+                    if (PlayerInputManager.InputActions.Player.Fire.WasPressedThisFrame() && currentAmmoCount > 0)
                         Shoot();
                     break;
                 case FireModes.BurstFire:
-                    if (InputHandler.instance.inputActions.Player.Fire.WasPressedThisFrame() && !isBursting && currentAmmoCount > 0)
+                    if (PlayerInputManager.InputActions.Player.Fire.WasPressedThisFrame() && !isBursting && currentAmmoCount > 0)
                         StartCoroutine(BurstFire());
                     break;
             }
@@ -175,9 +183,9 @@ public class WeaponCreator : MonoBehaviour
     
     private void Shoot()
     {
-        if (Time.time > nextFire)
+        if (Time.time > _nextFire)
         {
-            nextFire = Time.time + weapons.fireRate;
+            _nextFire = Time.time + weapons.fireRate;
 
             currentAmmoCount--;
             
@@ -194,7 +202,8 @@ public class WeaponCreator : MonoBehaviour
            
 
             //Play sound here
-            audioSource.PlayOneShot(weapons.fireSound);
+            SoundManager.Instance.PlayAudio(weapons.fireSound);
+            //audioSource.PlayOneShot(weapons.fireSound);
 
             //Play muzzle flash here
 
@@ -259,7 +268,7 @@ public class WeaponCreator : MonoBehaviour
             return;
         }
         
-        anim.Play("BigRifle_Reload_01_Temp");
+        _anim.Play("BigRifle_Reload_01_Temp");
     }
 
     #region UI Update Methods
@@ -283,24 +292,24 @@ public class WeaponCreator : MonoBehaviour
     private void HandleAim()
     {
         
-        if (InputHandler.instance.inputActions.Player.Aim.WasPerformedThisFrame())
+        if (PlayerInputManager.InputActions.Player.Aim.WasPerformedThisFrame())
         {
-            if (aimRoutine != null)
+            if (_aimRoutine != null)
             {
-                StopCoroutine(aimRoutine);
-                aimRoutine = null;
+                StopCoroutine(_aimRoutine);
+                _aimRoutine = null;
             }
-            aimRoutine = StartCoroutine(AimRoutine(true));
+            _aimRoutine = StartCoroutine(AimRoutine(true));
         }
 
-        if (InputHandler.instance.inputActions.Player.Aim.WasReleasedThisFrame())
+        if (PlayerInputManager.InputActions.Player.Aim.WasReleasedThisFrame())
         {
-            if (aimRoutine != null)
+            if (_aimRoutine != null)
             {
-                StopCoroutine(aimRoutine);
-                aimRoutine = null;
+                StopCoroutine(_aimRoutine);
+                _aimRoutine = null;
             }
-            aimRoutine = StartCoroutine(AimRoutine(false));
+            _aimRoutine = StartCoroutine(AimRoutine(false));
         }
     }
 
@@ -318,7 +327,7 @@ public class WeaponCreator : MonoBehaviour
         }
 
         camera.fieldOfView = targetFOV;
-        aimRoutine = null;
+        _aimRoutine = null;
     }
     
 
@@ -328,9 +337,9 @@ public class WeaponCreator : MonoBehaviour
     
     private void EnergyShoot()
     {
-        if (Time.time > nextFire)
+        if (Time.time > _nextFire)
         {
-            nextFire = Time.time + weapons.fireRate;
+            _nextFire = Time.time + weapons.fireRate;
 
             if (isAiming)
                 recoilScript.RecoilFire(adsRecoilX, adsRecoilY, adsRecoilZ);
@@ -430,7 +439,7 @@ public class WeaponCreator : MonoBehaviour
            
 
         //Play sound here
-        audioSource.PlayOneShot(weapons.fireSound);
+        SoundManager.Instance.PlayAudio(weapons.fireSound);
 
         //Play muzzle flash here
 
@@ -506,13 +515,13 @@ public class WeaponCreator : MonoBehaviour
     
     private void Reloading()
     {
-        anim.SetBool(IsReloadingHash, true);
+        _anim.SetBool(IsReloadingHash, true);
         isReloading = true;
     }
     
     private void NotReloading()
     {
-        anim.SetBool(IsReloadingHash, false);
+        _anim.SetBool(IsReloadingHash, false);
         isReloading = false;
     }
 

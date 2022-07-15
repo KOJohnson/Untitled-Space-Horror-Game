@@ -6,18 +6,18 @@ public class WeaponSway : MonoBehaviour
     public float smooth;
     public float intensity;
 
-    private Vector3 mouseInput;
-    private Quaternion originRotation;
-    private PlayerInput playerInput;
+    private Vector2 _mouseInput;
+    private Quaternion _originRotation;
+    private PlayerInput _playerInput;
     
-    private float xRotation = 0f;
-    private float xClamp = 75f;
+    private float _xRotation = 0f;
+    private float _xClamp = 75f;
 
     #region MonoBehaviour CallBacks
 
     private void Start()
     {
-        originRotation = transform.localRotation;
+        _originRotation = transform.localRotation;
     }
 
     void Update()
@@ -31,17 +31,17 @@ public class WeaponSway : MonoBehaviour
 
     private void UpdateSway()
     {
-        mouseInput = InputHandler.instance.inputActions.Player.MouseVector.ReadValue<Vector2>();
-        float mouseX = mouseInput.x;
-        float mouseY = mouseInput.y;
+        _mouseInput = PlayerInputManager.Instance.PlayerMouseInput();
+        float mouseX = _mouseInput.x;
+        float mouseY = _mouseInput.y;
 
-        xRotation = -mouseY;
-        xRotation = Mathf.Clamp(xRotation, -xClamp, xClamp);
+        _xRotation = -mouseY;
+        _xRotation = Mathf.Clamp(_xRotation, -_xClamp, _xClamp);
 
         //calculate target rotation
         Quaternion xAxisAdjsutment = Quaternion.AngleAxis(-intensity * mouseX , Vector3.up);
         Quaternion yAxisAdjsutment = Quaternion.AngleAxis(intensity * mouseY , Vector3.right);
-        Quaternion targetRotation = originRotation * xAxisAdjsutment * yAxisAdjsutment;
+        Quaternion targetRotation = _originRotation * xAxisAdjsutment * yAxisAdjsutment;
 
         //rotate towards target rotation 
         transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, smooth * Time.deltaTime);

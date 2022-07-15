@@ -1,4 +1,5 @@
 using System;
+using Core.Interfaces;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour,IDamageable
@@ -18,7 +19,7 @@ public class Enemy : MonoBehaviour,IDamageable
     private void Awake()
     {
         enemyHealth = maxHealth;
-        healthBar.UpdateHealthBar(maxHealth, enemyHealth);
+        //healthBar.UpdateHealthBar(maxHealth, enemyHealth);
     }
 
     private void Update()
@@ -32,7 +33,7 @@ public class Enemy : MonoBehaviour,IDamageable
     public void TakeDamage(float damage)
     {
         enemyHealth -= damage;
-        healthBar.UpdateHealthBar(maxHealth, enemyHealth);
+        //healthBar.UpdateHealthBar(maxHealth, enemyHealth);
     }
 
     private void Die()

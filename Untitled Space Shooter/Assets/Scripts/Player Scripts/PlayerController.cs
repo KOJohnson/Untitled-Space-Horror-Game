@@ -6,14 +6,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private CharacterController characterController;
-    private PlayerInput playerInput;
+    private CharacterController _characterController;
+    private CapsuleCollider _collider;
+    private PlayerInput _playerInput;
 
     public Vector3 movementInput;
-    private Vector3 movementDirection;
-    private Vector3 slopeMovementDirection;
-    private RaycastHit slopeHit;
-
+    private Vector3 _movementDirection;
+    private Vector3 _slopeMovementDirection;
+    private RaycastHit _slopeHit;
+    
     [SerializeField] private float gravityValue = -5f;
     public Vector3 playerVelocity = Vector3.zero;
 
@@ -61,7 +62,10 @@ public class PlayerController : MonoBehaviour
     }
     private void Awake()
     {
-        characterController = GetComponent<CharacterController>();
+        _characterController = GetComponent<CharacterController>();
+        _collider = GetComponent<CapsuleCollider>();
+        SetupJump();
+        
     }
     
     private void Update()
@@ -70,16 +74,27 @@ public class PlayerController : MonoBehaviour
 
         MovementInput();
         HandleGravity();
+        HandleJump();
+        CrouchInputHandler();
 
         switch (groundedPlayer && !onSlope)
         {
             case true:
-                characterController.Move(movementDirection * (currentSpeed * Time.deltaTime));
+                _characterController.Move(_movementDirection * (currentSpeed * Time.deltaTime));
                 break;
             case false:
-                characterController.Move(movementDirection * (airSpeed * Time.deltaTime));
+                _characterController.Move(_movementDirection * (airSpeed * Time.deltaTime));
                 break;
         }
+
+        if (isCrouching)
+        {
+            AdjustHeight(_characterController.height);
+        }
+        // if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
+        // {
+        //     AdjustHeight(_characterController.height);
+        // }
     }
 
     #endregion
@@ -89,12 +104,12 @@ public class PlayerController : MonoBehaviour
     
     private void DisableMovement()
     {
-        InputHandler.instance.inputActions.Player.Move.Disable();
+        PlayerInputManager.InputActions.Player.Move.Disable();
     }
     
     private void EnableMovement()
     {
-        InputHandler.instance.inputActions.Player.Move.Enable();
+        PlayerInputManager.InputActions.Player.Move.Enable();
     }
     
     private bool IsGrounded()
@@ -110,13 +125,13 @@ public class PlayerController : MonoBehaviour
         }
         
         playerVelocity.y += gravityValue * Time.deltaTime;
-        characterController.Move(playerVelocity * Time.deltaTime);
+        _characterController.Move(playerVelocity * Time.deltaTime);
     }
     
     private void MovementInput()
     {
-        movementInput = InputHandler.instance.inputActions.Player.Move.ReadValue<Vector2>();
-        movementDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
+        movementInput = PlayerInputManager.InputActions.Player.Move.ReadValue<Vector2>();
+        _movementDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
         if (!useAcceleration)
         {
@@ -127,20 +142,20 @@ public class PlayerController : MonoBehaviour
         else currentSpeed = 0;
     }
 
-    // private void AdjustHeight(float height)
-    // {
-    //     float center = height / 2;
-    //
-    //     characterController.height = Mathf.Lerp(characterController.height, height, crouchSpeed);
-    //     characterController.center = Vector3.Lerp(characterController.center, new Vector3(0, center, 0), crouchSpeed);
-    //     
-    //     collider.height = Mathf.Lerp(collider.height, height, crouchSpeed);
-    //     collider.center = Vector3.Lerp(collider.center, new Vector3(0, center, 0), crouchSpeed);
-    // }
+    private void AdjustHeight(float height)
+    {
+        float center = height / 2;
+    
+        _characterController.height = Mathf.Lerp(_characterController.height, height, crouchSpeed);
+        _characterController.center = Vector3.Lerp(_characterController.center, new Vector3(0, center, 0), crouchSpeed);
+        
+        _collider.height = Mathf.Lerp(_collider.height, height, crouchSpeed);
+        _collider.center = Vector3.Lerp(_collider.center, new Vector3(0, center, 0), crouchSpeed);
+    }
 
     private void HandleJump()
     {
-        if (InputHandler.instance.inputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
+        if (PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
             playerVelocity.y = initialJumpVelocity;
         }

@@ -5,9 +5,9 @@ namespace Core
 {
     public class EventManager:MonoBehaviour
     {
-        public static event Action EnableNormalAmmoHUD; 
+        public static event Action ToggleNormalAmmoHUD; 
         public static event Action DisableNormalAmmoHUD;
-        public static event Action EnableEnergyWeaponHUD; 
+        public static event Action ToggleEnergyWeaponHUD; 
         public static event Action DisableEnergyWeaponHUD; 
         public static event Action DisableAllMovement;
         public static event Action EnableAllMovement;
@@ -57,9 +57,9 @@ namespace Core
             DisableCursor?.Invoke();
         }
 
-        private static void OnEnableNormalAmmoHUD()
+        public static void OnToggleNormalAmmoHUD()
         {
-            EnableNormalAmmoHUD?.Invoke();
+            ToggleNormalAmmoHUD?.Invoke();
         }
 
         private static void OnDisableNormalAmmoHUD()
@@ -67,9 +67,9 @@ namespace Core
             DisableNormalAmmoHUD?.Invoke();
         }
 
-        private static void OnEnableEnergyWeaponHUD()
+        public static void OnToggleEnergyWeaponHUD()
         {
-            EnableEnergyWeaponHUD?.Invoke();
+            ToggleEnergyWeaponHUD?.Invoke();
         }
 
         private static void OnDisableEnergyWeaponHUD()
