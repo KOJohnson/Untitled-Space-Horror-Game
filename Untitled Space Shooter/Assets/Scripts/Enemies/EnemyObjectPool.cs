@@ -5,14 +5,18 @@ using UnityEngine;
 
 public class EnemyObjectPool : MonoBehaviour
 {
-    public static EnemyObjectPool instance;
+    public static EnemyObjectPool Instance;
     public List<GameObject> pooledEnemies;
     public GameObject objectToPool;
     public int poolAmount;
+    private GameObject enemyParent;
+    
+    
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
+        enemyParent = new GameObject("Enemy Parent");
     }
 
     private void Start()
@@ -21,7 +25,7 @@ public class EnemyObjectPool : MonoBehaviour
         GameObject tmp;
         for (int i = 0; i < poolAmount; i++)
         {
-            tmp = Instantiate(objectToPool);
+            tmp = Instantiate(objectToPool, enemyParent.transform, true);
             tmp.SetActive(false);
             pooledEnemies.Add(tmp);
         }

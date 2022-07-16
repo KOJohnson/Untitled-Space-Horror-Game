@@ -10,13 +10,12 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider _collider;
     private PlayerInput _playerInput;
 
-    public Vector3 movementInput;
+    private Vector3 _movementInput;
     private Vector3 _movementDirection;
     private Vector3 _slopeMovementDirection;
-    private RaycastHit _slopeHit;
-    
+
     [SerializeField] private float gravityValue = -5f;
-    public Vector3 playerVelocity = Vector3.zero;
+    private Vector3 _playerVelocity = Vector3.zero;
     
     [Header("Speed Parameters")]
     [SerializeField] private bool useAcceleration;
@@ -26,8 +25,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float minSpeed;
     [SerializeField] private float acceleration = 5f;
     [SerializeField] private float deceleration = 5f;
+    
+    [Header("Dash Parameters")]
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashTime;
+
+    [Header("Slope Parameters")] 
+    [SerializeField]private float maxSlopeAngle;
+    private RaycastHit _slopeHit;
     
     [Header("Jump Parameters")]
     [SerializeField] private float maxJumpHeight = 2.0f;
@@ -68,43 +73,23 @@ public class PlayerController : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _collider = GetComponent<CapsuleCollider>();
         SetupJump();
-
-        for (int i = 0; i < 100; i++)
-        {
-            print(i % 2 == 0 ? $"{i} is an even number" : $"{i} is an odd number");
-        }
-        
     }
     
     private void Update()
     {
         groundedPlayer = IsGrounded();
-
+        onSlope = OnSlope();
         MovementInput();
         HandleGravity();
         HandleJump();
-        //CrouchInputHandler();
-
-        switch (groundedPlayer && !onSlope)
-        {
-            case true:
-                _characterController.Move(_movementDirection * (currentSpeed * Time.deltaTime));
-                break;
-            case false:
-                _characterController.Move(_movementDirection * (airSpeed * Time.deltaTime));
-                break;
-        }
-
-        if (isCrouching)
-        {
-            AdjustHeight(_characterController.height);
-        }
+        MovePlayer();
 
         if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
         {
             if (!isCrouching)
             {
                 isCrouching = true;
+                AdjustHeight(_characterController.height);
             }
             else if (isCrouching)
             {
@@ -116,10 +101,18 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(Dash());
         }
-        // if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
-        // {
-        //     AdjustHeight(_characterController.height);
-        // }
+    }
+
+    private void MovePlayer()
+    {
+        if (IsGrounded())
+        {
+            _characterController.Move(_movementDirection * (currentSpeed * Time.deltaTime));
+        }
+        else if (!IsGrounded())
+        {
+            _characterController.Move(_movementDirection * (airSpeed * Time.deltaTime));
+        }
     }
 
     #endregion
@@ -143,9 +136,24 @@ public class PlayerController : MonoBehaviour
 
         while (Time.time < startTime + dashTime)
         {
-            _characterController.Move(_movementDirection * dashSpeed * Time.deltaTime);
+            _characterController.Move(_movementDirection * (dashSpeed * Time.deltaTime));
             yield return null;
         }
+    }
+
+    private bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out _slopeHit, _characterController.height * 0.5f + 0.3f, whatIsGround))
+        {
+            float angle = Vector3.Angle(Vector3.up, _slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+        return false;
+    }
+
+    private Vector3 GetSlopeMovementDirection()
+    {
+        return Vector3.ProjectOnPlane(_movementDirection, _slopeHit.normal).normalized;
     }
     
     private bool IsGrounded()
@@ -155,26 +163,26 @@ public class PlayerController : MonoBehaviour
 
     private void HandleGravity()
     {
-        if (groundedPlayer && playerVelocity.y < 0)
+        if (groundedPlayer && _playerVelocity.y < 0)
         {
-            playerVelocity.y = -2f;
+            _playerVelocity.y = -2f;
         }
         
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        _characterController.Move(playerVelocity * Time.deltaTime);
+        _playerVelocity.y += gravityValue * Time.deltaTime;
+        _characterController.Move(_playerVelocity * Time.deltaTime);
     }
     
     private void MovementInput()
     {
-        movementInput = PlayerInputManager.InputActions.Player.Move.ReadValue<Vector2>();
-        _movementDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
+        _movementInput = PlayerInputManager.InputActions.Player.Move.ReadValue<Vector2>();
+        _movementDirection = transform.right * _movementInput.x + transform.forward * _movementInput.y;
 
         if (!useAcceleration)
         {
             currentSpeed = maxSpeed;
             return;
         }
-        if (movementInput != Vector3.zero) PlayerAcceleration();
+        if (_movementInput != Vector3.zero) PlayerAcceleration();
         else currentSpeed = 0;
     }
 
@@ -193,12 +201,12 @@ public class PlayerController : MonoBehaviour
     {
         if (PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
-            playerVelocity.y = initialJumpVelocity;
+            _playerVelocity.y = initialJumpVelocity;
         }
 
         if (isHeadHitting && !groundedPlayer)
         {
-            playerVelocity.y += gravityValue * Time.deltaTime;
+            _playerVelocity.y += gravityValue * Time.deltaTime;
         }
     }
     

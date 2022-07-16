@@ -161,6 +161,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GrapplingHook"",
+                    ""type"": ""Button"",
+                    ""id"": ""69bc42f6-cbb8-4b01-82c1-89fa19886b31"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -372,6 +381,17 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Sprint"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1fc4388c-9164-4a1c-a3e4-c459f554a376"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GrapplingHook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -463,6 +483,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
+        m_Player_GrapplingHook = m_Player.FindAction("GrapplingHook", throwIfNotFound: true);
         // Interaction
         m_Interaction = asset.FindActionMap("Interaction", throwIfNotFound: true);
         m_Interaction_Interact = m_Interaction.FindAction("Interact", throwIfNotFound: true);
@@ -542,6 +563,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Reload;
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_Sprint;
+    private readonly InputAction m_Player_GrapplingHook;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -561,6 +583,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
+        public InputAction @GrapplingHook => m_Wrapper.m_Player_GrapplingHook;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -615,6 +638,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Sprint.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
                 @Sprint.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
                 @Sprint.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSprint;
+                @GrapplingHook.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGrapplingHook;
+                @GrapplingHook.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGrapplingHook;
+                @GrapplingHook.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnGrapplingHook;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -664,6 +690,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Sprint.started += instance.OnSprint;
                 @Sprint.performed += instance.OnSprint;
                 @Sprint.canceled += instance.OnSprint;
+                @GrapplingHook.started += instance.OnGrapplingHook;
+                @GrapplingHook.performed += instance.OnGrapplingHook;
+                @GrapplingHook.canceled += instance.OnGrapplingHook;
             }
         }
     }
@@ -734,6 +763,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnReload(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
+        void OnGrapplingHook(InputAction.CallbackContext context);
     }
     public interface IInteractionActions
     {

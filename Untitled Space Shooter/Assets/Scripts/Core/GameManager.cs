@@ -3,10 +3,18 @@ using UnityEngine;
 
 namespace Core
 {
+    public enum MySpawnWaves
+    {
+        Wave1,
+        Wave2,
+        Wave3
+    }
     public class GameManager : MonoBehaviour
     {
-        [Header("Framerate")]
-        public int frameRate;
+        public static GameManager Instance;
+
+        public int enemyCount;
+        public int enemiesToSpawn;
         
         [SerializeField]private bool disableMovement;
     
@@ -29,11 +37,21 @@ namespace Core
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             
-            Application.targetFrameRate = frameRate;
+
+            if (Instance == null)
+                Instance = this;
+            else
+                DontDestroyOnLoad(gameObject);
+            
         }
 
         private void Update()
         {
+
+            if (enemyCount == 0)
+            {
+                EnemySpawner.Instance.SpawnEnemies(enemiesToSpawn);
+            }
 
             if (disableMovement)
             {
@@ -65,6 +83,15 @@ namespace Core
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        public void AddEnemy()
+        {
+            enemyCount += 1;
+        }
+        public void RemoveEnemy()
+        {
+            enemyCount -= 1;
         }
         
     }

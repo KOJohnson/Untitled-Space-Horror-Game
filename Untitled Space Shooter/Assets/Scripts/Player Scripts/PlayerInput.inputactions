@@ -139,6 +139,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "GrapplingHook",
+                    "type": "Button",
+                    "id": "69bc42f6-cbb8-4b01-82c1-89fa19886b31",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -348,6 +357,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1fc4388c-9164-4a1c-a3e4-c459f554a376",
+                    "path": "<Keyboard>/q",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GrapplingHook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
