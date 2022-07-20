@@ -1,21 +1,24 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Core
 {
-    public enum MySpawnWaves
-    {
-        Wave1,
-        Wave2,
-        Wave3
-    }
     public class GameManager : MonoBehaviour
     {
+        public UnityEvent spawnEnemy;
+        
         public static GameManager Instance;
 
+        public Transform player;
+
         public int enemyCount;
-        public int enemiesToSpawn;
-        
+        public int waves;
+
+        public bool waveOneComplete;
+        public bool waveTwoComplete;
+        public bool waveThreeComplete;
+
         [SerializeField]private bool disableMovement;
     
         [SerializeField]private bool disablePlayerInput;
@@ -47,11 +50,9 @@ namespace Core
 
         private void Update()
         {
-
-            if (enemyCount == 0)
-            {
-                EnemySpawner.Instance.SpawnEnemies(enemiesToSpawn);
-            }
+            
+            
+            
 
             if (disableMovement)
             {

@@ -9,14 +9,14 @@ public class EnemyObjectPool : MonoBehaviour
     public List<GameObject> pooledEnemies;
     public GameObject objectToPool;
     public int poolAmount;
-    private GameObject enemyParent;
+    private GameObject _enemyParent;
     
     
 
     private void Awake()
     {
         Instance = this;
-        enemyParent = new GameObject("Enemy Parent");
+        _enemyParent = new GameObject("Enemy Parent");
     }
 
     private void Start()
@@ -25,7 +25,7 @@ public class EnemyObjectPool : MonoBehaviour
         GameObject tmp;
         for (int i = 0; i < poolAmount; i++)
         {
-            tmp = Instantiate(objectToPool, enemyParent.transform, true);
+            tmp = Instantiate(objectToPool, _enemyParent.transform, true);
             tmp.SetActive(false);
             pooledEnemies.Add(tmp);
         }

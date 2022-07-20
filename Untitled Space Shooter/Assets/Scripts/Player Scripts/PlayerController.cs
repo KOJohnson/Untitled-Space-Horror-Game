@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private CharacterController _characterController;
+    private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
     private PlayerInput _playerInput;
 
@@ -14,7 +15,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 _movementDirection;
     private Vector3 _slopeMovementDirection;
 
-    [SerializeField] private float gravityValue = -5f;
+    private float _nextFire;
+
+    [SerializeField] private float gravityValue = -40f;
+    [SerializeField] private float testGravityValue = -100f;
     private Vector3 _playerVelocity = Vector3.zero;
     
     [Header("Speed Parameters")]
@@ -29,6 +33,7 @@ public class PlayerController : MonoBehaviour
     [Header("Dash Parameters")]
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashTime;
+    [SerializeField] private float dashRate;
 
     [Header("Slope Parameters")] 
     [SerializeField]private float maxSlopeAngle;
@@ -49,6 +54,7 @@ public class PlayerController : MonoBehaviour
     [Header("Ground Detection Settings")]
     public LayerMask whatIsGround;
     public Transform checkSphere;
+    public Transform headCheck;
     [SerializeField] private float sphereRadius;
     [SerializeField] private float rayLength = 0.4f;
     [SerializeField] private bool groundedPlayer;
@@ -71,6 +77,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
+        _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<CapsuleCollider>();
         SetupJump();
     }
@@ -79,11 +86,21 @@ public class PlayerController : MonoBehaviour
     {
         groundedPlayer = IsGrounded();
         onSlope = OnSlope();
+        isHeadHitting = IsHeadHitting();
         MovementInput();
         HandleGravity();
         HandleJump();
         MovePlayer();
 
+        if (IsHeadHitting())
+        {
+            Debug.DrawRay(headCheck.position, Vector3.up * rayLength, Color.green);
+        }
+        else
+        {
+            Debug.DrawRay(headCheck.position, Vector3.up * rayLength, Color.red);
+        }
+        
         if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
         {
             if (!isCrouching)
@@ -134,10 +151,15 @@ public class PlayerController : MonoBehaviour
     {
         float startTime = Time.time;
 
-        while (Time.time < startTime + dashTime)
+        if (Time.time > _nextFire)
         {
-            _characterController.Move(_movementDirection * (dashSpeed * Time.deltaTime));
-            yield return null;
+            _nextFire = Time.time + dashRate;
+
+            while (Time.time < startTime + dashTime)
+            {
+                _characterController.Move(_movementDirection * (dashSpeed * Time.deltaTime));
+                yield return null;
+            }
         }
     }
 
@@ -151,14 +173,19 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    private Vector3 GetSlopeMovementDirection()
-    {
-        return Vector3.ProjectOnPlane(_movementDirection, _slopeHit.normal).normalized;
-    }
-    
     private bool IsGrounded()
     {
         return Physics.CheckSphere(checkSphere.position, sphereRadius, whatIsGround);
+    }
+
+    private bool IsHeadHitting()
+    {
+        return Physics.CheckSphere(headCheck.position, rayLength, whatIsGround);
+    }
+    
+    private Vector3 GetSlopeMovementDirection()
+    {
+        return Vector3.ProjectOnPlane(_movementDirection, _slopeHit.normal).normalized;
     }
 
     private void HandleGravity()
@@ -202,18 +229,19 @@ public class PlayerController : MonoBehaviour
         if (PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
             _playerVelocity.y = initialJumpVelocity;
+            print(_playerVelocity.y);
         }
 
         if (isHeadHitting && !groundedPlayer)
         {
-            _playerVelocity.y += gravityValue * Time.deltaTime;
+            _playerVelocity.y += testGravityValue * Time.deltaTime;
         }
     }
     
     private void SetupJump()
     {
         float timeToApex = maxJumpTime / 2;
-        gravityValue = (-2 * maxJumpHeight) / Mathf.Pow(timeToApex, 2);
+        //gravityValue = (-2 * maxJumpHeight) / Mathf.Pow(timeToApex, 2);
         initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
     }
     
@@ -247,6 +275,14 @@ public class PlayerController : MonoBehaviour
 
     #region Event Calls
 
+    public void RbAddForce(float force)
+    {
+        _rigidbody.AddForce(transform.up * force, ForceMode.Impulse);
+    }
+    public void AddForce(float force)
+    {
+        _playerVelocity.y = force;
+    }
     
 
     #endregion

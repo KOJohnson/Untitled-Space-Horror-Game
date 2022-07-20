@@ -1,19 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
-     public static EnemySpawner Instance;
-     public bool spawnEnemies;
      public Transform[] spawnPoints;
      public List<Vector3> spawnLocation;
 
+     private float _timeElapsed;
+
      private void Awake()
      {
-          Instance = this;
-          
           foreach (Transform spawnPoint in spawnPoints)
           {
                var tmp = spawnPoint.transform.position;
@@ -34,4 +33,5 @@ public class EnemySpawner : MonoBehaviour
                }
           }
      }
+
 }

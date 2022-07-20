@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3229597139057575433}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.19999981, z: -0.19999981}
+  m_LocalPosition: {x: 0, y: 0.19999981, z: 0.219}
   m_LocalScale: {x: 0.6, y: 0.2, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -143,6 +143,9 @@ GameObject:
   - component: {fileID: 4792239078219952718}
   - component: {fileID: 774737910805044298}
   - component: {fileID: 6030137254979391056}
+  - component: {fileID: 8968513447896020227}
+  - component: {fileID: 4802531733997194024}
+  - component: {fileID: 5070910706079808933}
   m_Layer: 0
   m_Name: Enemy_Humanoid
   m_TagString: Enemy
@@ -262,6 +265,87 @@ MonoBehaviour:
   healthImage: {fileID: 4792239079775076595}
   healthCanvas: {fileID: 4792239079580236799}
   fillSpeed: 2
+--- !u!114 &8968513447896020227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4792239078219952723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43fd5882ef8f8024ebc1da8d3a64110e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateSpeed: 1
+--- !u!195 &4802531733997194024
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4792239078219952723}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 2
+  m_Speed: 2.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 2
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &5070910706079808933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4792239078219952723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d266be80c21f5f48a58514f6dadcda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Method: 3
+  m_Curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.003200531
+      value: -0.0061187744
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.49935955
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.010368347
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &4792239079447824701
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,6 +25,7 @@ public class WeaponCreator : MonoBehaviour
 {
     public WeaponTypes myWeaponType;
     public FireModes myFireModes;
+    public BulletTrailPool trailPool;
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
@@ -100,6 +101,7 @@ public class WeaponCreator : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         _anim = GetComponent<Animator>();
+        trailPool = GetComponent<BulletTrailPool>();
         camera = Camera.main;
 
         PlayerInputManager.InputActions.Player.Fire.performed += OnFire;
@@ -203,7 +205,6 @@ public class WeaponCreator : MonoBehaviour
 
             //Play sound here
             SoundManager.Instance.PlayAudio(weapons.fireSound);
-            //audioSource.PlayOneShot(weapons.fireSound);
 
             //Play muzzle flash here
 
@@ -213,8 +214,18 @@ public class WeaponCreator : MonoBehaviour
             if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
             
             //Spawn Tracer
-            TrailRenderer trailRenderer = Instantiate(weapons.bulletTracer, firePoint.position, quaternion.identity);
-            StartCoroutine(SpawnTrail(trailRenderer, hit));
+            //TrailRenderer trailRenderer = Instantiate(weapons.bulletTracer, firePoint.position, quaternion.identity);
+            
+            TrailRenderer trail = trailPool.GetPooledObject();
+            if (trail != null)
+            {
+                trail.transform.position = firePoint.position;
+                trail.transform.rotation = Quaternion.identity;
+                trail.gameObject.SetActive(true);
+                StartCoroutine(SpawnTrail(trail, hit));
+            }
+            
+            
             
             //spawn decal
             GameObject decal = bulletPool.GetPooledObject();
