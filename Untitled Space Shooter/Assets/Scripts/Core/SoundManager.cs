@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Core
 {
@@ -7,7 +8,8 @@ namespace Core
     {
         public static SoundManager Instance;
 
-        public AudioSource gunEffects;
+        public AudioSource backgroundMusic;
+        
         private void Awake()
         {
             if (Instance == null)
@@ -21,9 +23,10 @@ namespace Core
             }
         }
 
-        public void PlayAudio(AudioClip clip)
+        public void PlayAudio(AudioSource audioSource,AudioClip clip)
         {
-            gunEffects.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip);
         }
+        
     }
 }

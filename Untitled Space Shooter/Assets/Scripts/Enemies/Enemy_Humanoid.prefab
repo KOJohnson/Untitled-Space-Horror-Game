@@ -246,10 +246,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce617172c6ff174abf099db9c1a7dfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthBar: {fileID: 6030137254979391056}
   maxHealth: 100
   enemyHealth: 100
-  isDead: 0
 --- !u!114 &6030137254979391056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277,6 +275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43fd5882ef8f8024ebc1da8d3a64110e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationSpeed: 5
   updateSpeed: 1
 --- !u!195 &4802531733997194024
 NavMeshAgent:
@@ -291,7 +290,7 @@ NavMeshAgent:
   m_Speed: 2.5
   m_Acceleration: 8
   avoidancePriority: 50
-  m_AngularSpeed: 120
+  m_AngularSpeed: 0
   m_StoppingDistance: 2
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1

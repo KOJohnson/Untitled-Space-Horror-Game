@@ -4,6 +4,7 @@ using UnityEngine.Events;
 public class EnemySpawnTrigger : MonoBehaviour
 {
     public UnityEvent spawnEnemy;
+    public Collider triggerCollider;
     private void OnTriggerEnter(Collider col)
     {
         if (col.CompareTag("Player"))
@@ -16,7 +17,7 @@ public class EnemySpawnTrigger : MonoBehaviour
     {
         if (col.CompareTag("Player"))
         {
-            gameObject.SetActive(false);
+            triggerCollider.enabled = false;
         }
     }
     

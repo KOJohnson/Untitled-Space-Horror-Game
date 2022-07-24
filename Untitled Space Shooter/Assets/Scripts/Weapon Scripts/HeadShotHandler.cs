@@ -14,10 +14,10 @@ public class HeadShotHandler : MonoBehaviour, IDamageable
 
     public void TakeDamage(float damage)
     {
-        enemy.currentHealth -= damage;
-        healthBar.UpdateHealthBar(enemy.EnemyMax, enemy.currentHealth);
+        enemy.CurrentHealth -= damage;
+        healthBar.UpdateHealthBar(enemy.EnemyMax, enemy.CurrentHealth);
 
-        if (enemy.currentHealth <= 0)
+        if (enemy.CurrentHealth <= 0)
         {
             HeadPop();
         }

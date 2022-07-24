@@ -60,8 +60,7 @@ public class ShotgunCreator : MonoBehaviour
     {
         camera = Camera.main;
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>(); 
-        
+
         PlayerInputManager.InputActions.Player.Fire.performed += OnFire;
         PlayerInputManager.InputActions.Player.Fire.canceled += OnFire;
     }
@@ -104,7 +103,7 @@ public class ShotgunCreator : MonoBehaviour
             
             recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
             
-            SoundManager.Instance.PlayAudio(weapons.fireSound);
+            SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);
             //audioSource.PlayOneShot(weapons.fireSound);
 
             for (int i = 0; i < pelletsPerShot; i++)

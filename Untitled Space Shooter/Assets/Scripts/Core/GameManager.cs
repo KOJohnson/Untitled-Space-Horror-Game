@@ -6,14 +6,12 @@ namespace Core
 {
     public class GameManager : MonoBehaviour
     {
-        public UnityEvent spawnEnemy;
-        
         public static GameManager Instance;
+        public UnityEvent myEvent;
 
         public Transform player;
 
         public int enemyCount;
-        public int waves;
 
         public bool waveOneComplete;
         public bool waveTwoComplete;
@@ -50,10 +48,6 @@ namespace Core
 
         private void Update()
         {
-            
-            
-            
-
             if (disableMovement)
             {
                 EventManager.OnDisableAllMovement();

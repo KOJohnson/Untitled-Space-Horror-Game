@@ -5,12 +5,10 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour,IDamageable
 {
-    public HealthBar healthBar;
     [SerializeField]private float maxHealth = 100f;
     [SerializeField]private float enemyHealth = 100f;
-
-    public bool isDead;
-    public float currentHealth
+    
+    public float CurrentHealth
     {
         get => enemyHealth;
         set => enemyHealth = value;

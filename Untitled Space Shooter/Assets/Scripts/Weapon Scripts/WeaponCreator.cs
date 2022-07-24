@@ -29,7 +29,7 @@ public class WeaponCreator : MonoBehaviour
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
-    public Camera camera;
+    private Camera _camera;
 
     [SerializeField]private AudioSource audioSource;
     [SerializeField]private Transform firePoint;
@@ -93,16 +93,16 @@ public class WeaponCreator : MonoBehaviour
     
     private void OnDisable()
     {
+        _anim.keepAnimatorControllerStateOnDisable = true;
         isBursting = false;
-        //AmmoHUD.SetActive(false);
+        isReloading = false;
     }
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
         _anim = GetComponent<Animator>();
         trailPool = GetComponent<BulletTrailPool>();
-        camera = Camera.main;
+        _camera = Camera.main;
 
         PlayerInputManager.InputActions.Player.Fire.performed += OnFire;
         PlayerInputManager.InputActions.Player.Fire.canceled += OnFire;
@@ -113,7 +113,7 @@ public class WeaponCreator : MonoBehaviour
 
     private void Start()
     {
-        defaultFOV = camera.fieldOfView;
+        defaultFOV = _camera.fieldOfView;
         _anim.Play("RifleEquipAnimation");
         
         UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
@@ -204,13 +204,13 @@ public class WeaponCreator : MonoBehaviour
            
 
             //Play sound here
-            SoundManager.Instance.PlayAudio(weapons.fireSound);
+            SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);
 
             //Play muzzle flash here
 
 
             RaycastHit hit;
-            Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
             
             //Spawn Tracer
@@ -327,17 +327,17 @@ public class WeaponCreator : MonoBehaviour
     private IEnumerator AimRoutine(bool isEnter)
     {
         float targetFOV = isEnter ? adsFOV : defaultFOV;
-        float startingFOV = camera.fieldOfView;
+        float startingFOV = _camera.fieldOfView;
         float timeElapsed = 0;
 
         while (timeElapsed < adsSpeed)
         {
-            camera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / adsSpeed);
+            _camera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / adsSpeed);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        camera.fieldOfView = targetFOV;
+        _camera.fieldOfView = targetFOV;
         _aimRoutine = null;
     }
     
@@ -363,7 +363,7 @@ public class WeaponCreator : MonoBehaviour
             //Play muzzle flash here
             
             RaycastHit hit;
-            Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
             
             //Spawn Tracer
@@ -450,13 +450,13 @@ public class WeaponCreator : MonoBehaviour
            
 
         //Play sound here
-        SoundManager.Instance.PlayAudio(weapons.fireSound);
+        SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);
 
         //Play muzzle flash here
 
 
         RaycastHit hit;
-        Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
             
         //Spawn Tracer

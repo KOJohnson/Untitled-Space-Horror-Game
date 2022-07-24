@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
     private PlayerInput _playerInput;
+    private Camera _camera;
 
     private Vector3 _movementInput;
     private Vector3 _movementDirection;
@@ -18,7 +20,7 @@ public class PlayerController : MonoBehaviour
     private float _nextFire;
 
     [SerializeField] private float gravityValue = -40f;
-    [SerializeField] private float testGravityValue = -100f;
+    [SerializeField] private float downForce = -100f;
     private Vector3 _playerVelocity = Vector3.zero;
     
     [Header("Speed Parameters")]
@@ -29,7 +31,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float minSpeed;
     [SerializeField] private float acceleration = 5f;
     [SerializeField] private float deceleration = 5f;
-    
+
     [Header("Dash Parameters")]
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashTime;
@@ -38,8 +40,9 @@ public class PlayerController : MonoBehaviour
     [Header("Slope Parameters")] 
     [SerializeField]private float maxSlopeAngle;
     private RaycastHit _slopeHit;
-    
-    [Header("Jump Parameters")]
+
+    [Header("Jump Parameters")] 
+    [SerializeField] private int jumpCount = 2;
     [SerializeField] private float maxJumpHeight = 2.0f;
     [SerializeField] private float maxJumpTime = 0.5f;
     [SerializeField] private float initialJumpVelocity;
@@ -58,8 +61,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sphereRadius;
     [SerializeField] private float rayLength = 0.4f;
     [SerializeField] private bool groundedPlayer;
+    [SerializeField] private bool onGroundLastFrame = false;
     [SerializeField] private bool isHeadHitting;
     [SerializeField] private bool onSlope;
+    
+    [Header("Footstep Settings")]
+    [Range(0, 10)]public float minimumSpeedThreshold;
+    [Range(0,1)][SerializeField]private float fireRate = 0.9f;
+    [SerializeField]private AudioClip[] metalFootSteps;
+    [SerializeField]private AudioClip[] metalJump;
+    [SerializeField]private AudioClip[] metalLand;
+    private float _nextFootstepFire;
+
+    [Header("Audio Settings")] 
+    public AudioSource audioSource;
+    
     
     #region MonoBehaviour CallBacks
     
@@ -79,7 +95,13 @@ public class PlayerController : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<CapsuleCollider>();
+        _camera = Camera.main;
         SetupJump();
+    }
+
+    private void Start()
+    {
+        
     }
     
     private void Update()
@@ -87,10 +109,12 @@ public class PlayerController : MonoBehaviour
         groundedPlayer = IsGrounded();
         onSlope = OnSlope();
         isHeadHitting = IsHeadHitting();
+        
         MovementInput();
         HandleGravity();
         HandleJump();
         MovePlayer();
+        HandleFootsteps();
 
         if (IsHeadHitting())
         {
@@ -100,24 +124,17 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(headCheck.position, Vector3.up * rayLength, Color.red);
         }
-        
-        if (PlayerInputManager.InputActions.Player.Crouch.WasPressedThisFrame())
-        {
-            if (!isCrouching)
-            {
-                isCrouching = true;
-                AdjustHeight(_characterController.height);
-            }
-            else if (isCrouching)
-            {
-                isCrouching = false;
-            }
-        }
 
         if (PlayerInputManager.InputActions.Player.Dash.WasPressedThisFrame())
         {
             StartCoroutine(Dash());
         }
+
+        if (groundedPlayer && !onGroundLastFrame)
+        {
+            SoundManager.Instance.PlayAudio(audioSource,metalLand[Random.Range(0, metalLand.Length -1)]);
+        }
+        onGroundLastFrame = groundedPlayer;
     }
 
     private void MovePlayer()
@@ -132,23 +149,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void HandleFootsteps()
+    {
+        var playerVelocity = _characterController.velocity.magnitude;
+        
+        if (groundedPlayer && playerVelocity >= minimumSpeedThreshold && Time.time > _nextFootstepFire) 
+        {
+            _nextFootstepFire = Time.time + fireRate;
+            SoundManager.Instance.PlayAudio(audioSource,metalFootSteps[Random.Range(0, metalFootSteps.Length -1)]);
+        }
+    }
+
     #endregion
     
 
     #region Private Methods
-    
-    private void DisableMovement()
-    {
-        PlayerInputManager.InputActions.Player.Move.Disable();
-    }
-    
-    private void EnableMovement()
-    {
-        PlayerInputManager.InputActions.Player.Move.Enable();
-    }
-
     private IEnumerator Dash()
     {
+        if (_movementDirection == Vector3.zero)
+            yield break;
+        
         float startTime = Time.time;
 
         if (Time.time > _nextFire)
@@ -226,15 +246,16 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
+        if (jumpCount > 0 && PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
+            jumpCount = 1;
+            SoundManager.Instance.PlayAudio(audioSource,metalJump[Random.Range(0, metalJump.Length -1)]);
             _playerVelocity.y = initialJumpVelocity;
-            print(_playerVelocity.y);
         }
 
         if (isHeadHitting && !groundedPlayer)
         {
-            _playerVelocity.y += testGravityValue * Time.deltaTime;
+            _playerVelocity.y = downForce;
         }
     }
     
@@ -284,6 +305,15 @@ public class PlayerController : MonoBehaviour
         _playerVelocity.y = force;
     }
     
-
+    private void DisableMovement()
+    {
+        PlayerInputManager.InputActions.Player.Move.Disable();
+    }
+    
+    private void EnableMovement()
+    {
+        PlayerInputManager.InputActions.Player.Move.Enable();
+    }
+    
     #endregion
 }
