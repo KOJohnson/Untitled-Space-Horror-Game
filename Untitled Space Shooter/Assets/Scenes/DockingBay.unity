@@ -132254,7 +132254,6 @@ MonoBehaviour:
       m_Calls: []
   player: {fileID: 3267993674574997203}
   enemyCount: 0
-  waves: 0
   waveOneComplete: 0
   waveTwoComplete: 0
   waveThreeComplete: 0
@@ -133844,22 +133843,67 @@ MonoBehaviour:
     actions:
     - name: Basic Enemy
       delay: 1
+      myEvent:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7895213419826249089}
+            m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+            m_MethodName: SpawnEnemies
+            m_Mode: 3
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 5
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       prefab: {fileID: 0}
-      spawnCount: 5
+      spawnCount: 9
       message: 
   - name: Wave 2
     actions:
     - name: Basic Enemy
-      delay: 5
+      delay: 15
+      myEvent:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7895213419826249089}
+            m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+            m_MethodName: SpawnEnemies
+            m_Mode: 3
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 8
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       prefab: {fileID: 0}
-      spawnCount: 5
+      spawnCount: 6
       message: 
   - name: Wave 3
     actions:
     - name: Basic Enemy
-      delay: 5
+      delay: 10
+      myEvent:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7895213419826249089}
+            m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+            m_MethodName: SpawnEnemies
+            m_Mode: 3
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 10
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       prefab: {fileID: 0}
-      spawnCount: 5
+      spawnCount: 8
       message: 
 --- !u!4 &7942816439322814012
 Transform:

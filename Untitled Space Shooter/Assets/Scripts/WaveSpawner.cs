@@ -49,12 +49,11 @@ public class WaveSpawner : MonoBehaviour
                         // A.prefab != null &&
                         // TODO: print ingame message
                     }
-                    if (A.spawnCount > 0)
-                    {
-                        A.myEvent?.Invoke();
-                        //enemySpawner.SpawnEnemies(A.spawnCount);
-                        currentSpawnWave++;
-                    }
+                    
+                    A.myEvent?.Invoke();
+                    //enemySpawner.SpawnEnemies(A.spawnCount);
+                    currentSpawnWave++;
+                    
                 }
                 yield return null;  // prevents crash if all delays are 0
             }
