@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -32,6 +33,8 @@ public class EnemySpawner : MonoBehaviour
                     enemy.SetActive(true);
                }
           }
+
+          GameManager.Instance.enemyCount += enemiesToSpawn;
      }
 
 }

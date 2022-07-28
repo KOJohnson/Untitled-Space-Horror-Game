@@ -11,8 +11,8 @@ namespace Core
         public static event Action DisableEnergyWeaponHUD; 
         public static event Action DisableAllMovement;
         public static event Action EnableAllMovement;
-        public static event Action DisableAllInput;
-        public static event Action EnableAllInput;
+        public static event Action DisablePlayerInput;
+        public static event Action EnablePlayerInput;
         public static event Action EnableCursor;
         public static event Action DisableCursor;
         public static event Action EnableCrosshair;
@@ -27,6 +27,17 @@ namespace Core
         {
             DisableCrosshair?.Invoke();
         }
+
+        public static void OnEnablePlayerInput()
+        {
+            EnablePlayerInput?.Invoke();
+        }
+    
+        public static void OnDisablePlayerInput()
+        {
+            DisablePlayerInput?.Invoke();
+        }
+        
         public static void OnDisableAllMovement()
         {
             DisableAllMovement?.Invoke();
@@ -35,16 +46,6 @@ namespace Core
         public static void OnEnableAllMovement()
         {
             EnableAllMovement?.Invoke();
-        }
-    
-        public static void OnEnableAllInput()
-        {
-            EnableAllInput?.Invoke();
-        }
-    
-        public static void OnDisableAllInput()
-        {
-            DisableAllInput?.Invoke();
         }
 
         public static void OnEnableCursor()

@@ -22,7 +22,7 @@ public class Enemy : MonoBehaviour,IDamageable
 
     private void Start()
     {
-        GameManager.Instance.AddEnemy();
+        
     }
 
     private void Update()
@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour,IDamageable
 
     private void Die()
     {
-        GameManager.Instance.RemoveEnemy();
         gameObject.SetActive(false);
+        GameManager.Instance.enemyCount -= 1;
     }
 }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db32b363c9b01f147a9832dd8f1712f7, type: 3}
+  m_Name: BigEnergy
+  m_EditorClassIdentifier: 
+  weaponDamage: 35
+  headshotMultiplier: 1.8
+  fireRate: 0.2
+  maxDistance: 100
+  overheatSpeed: 15
+  maxHeatCapacity: 100
+  minHeatCapacity: 0
+  minHeatThreshold: 25
+  fireSound: {fileID: 8300000, guid: e70eb034c8ae4fe42b00d809716998e4, type: 3}
+  bulletTracer: {fileID: 0}

@@ -17,8 +17,8 @@ public class SwitchVCam : MonoBehaviour
         thirdPersonController = GetComponent<ThirdPersonController>();
         
         
-        InputHandler.instance.inputActions.Player.Aim.performed += _ => StartAim();
-        InputHandler.instance.inputActions.Player.Aim.canceled += _ => CancelAim();
+        PlayerInputManager.InputActions.Player.Aim.performed += _ => StartAim();
+        PlayerInputManager.InputActions.Player.Aim.canceled += _ => CancelAim();
     }
 
     private void StartAim()

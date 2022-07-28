@@ -5,12 +5,10 @@ namespace Core
 {
     public class PlayerInputManager : MonoBehaviour
     {
-
         public static PlayerInputManager Instance;
         public static PlayerInput InputActions;
         
         private Vector2 _mouseInput;
-       
 
         private void Awake()
         {
@@ -22,11 +20,6 @@ namespace Core
                 Destroy(gameObject);
         }
 
-        private void Update()
-        {
-            
-        }
-
         public Vector2 PlayerMouseInput()
         {
             _mouseInput = InputActions.Player.MouseVector.ReadValue<Vector2>();
@@ -34,7 +27,7 @@ namespace Core
             return _mouseInput;
         }
 
-        private Vector2 PlayerMovementInput()
+        public Vector2 PlayerMovementInput()
         {
             var movementDirection = InputActions.Player.Move.ReadValue<Vector2>();
 
@@ -51,26 +44,11 @@ namespace Core
         private void OnEnable()
         {
             InputActions.Enable();
-            EventManager.EnableAllInput += EnableInput;
-            EventManager.DisableAllInput += DisableInput;
         }
 
         private void OnDisable()
         {
             InputActions.Disable();
-            EventManager.EnableAllInput -= EnableInput;
-            EventManager.DisableAllInput -= DisableInput;
-        }
-
-        
-        private void DisableInput()
-        {
-            InputActions.Player.Disable();
-        }
- 
-        private void EnableInput()
-        {
-            InputActions.Player.Enable();
         }
     }
 }

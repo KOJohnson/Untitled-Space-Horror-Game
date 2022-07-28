@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,8 +11,8 @@ public class WaveAction
     public string name;
     public float delay;
     public UnityEvent myEvent;
-    public GameObject prefab;
-    public int spawnCount;
+    //public GameObject prefab;
+    //public int spawnCount;
     public string message;
 }
  
@@ -46,16 +47,12 @@ public class WaveSpawner : MonoBehaviour
                         yield return new WaitForSeconds(A.delay * m_DelayFactor);
                     if (A.message != "")
                     {
-                        // A.prefab != null &&
-                        // TODO: print ingame message
+                        Debug.Log(A.message);
                     }
-                    
                     A.myEvent?.Invoke();
-                    //enemySpawner.SpawnEnemies(A.spawnCount);
-                    currentSpawnWave++;
-                    
                 }
-                yield return null;  // prevents crash if all delays are 0
+                yield return null; // prevents crash if all delays are 0
+                currentSpawnWave++;
             }
             m_DelayFactor *= difficultyFactor;
             yield return null;  // prevents crash if all delays are 0

@@ -14,6 +14,7 @@ public class ObjectInspect : MonoBehaviour,IInteractables
     public float lerp;
     public float distFromCam;
 
+    public bool canCollect;
     public bool isInspecting;
     public bool mouseDown;
 
@@ -25,15 +26,12 @@ public class ObjectInspect : MonoBehaviour,IInteractables
     private Vector3 _originalPos;
     private Vector3 _originalRot;
     private Vector3 _targetPos;
-    private Camera _camera;
+    public Camera _objectCamera;
 
     private void Awake()
     {
-        _camera = Camera.main;
-
         PlayerInputManager.InputActions.Interaction.LeftMouse.performed += OnLeftMouseDown;
         PlayerInputManager.InputActions.Interaction.LeftMouse.canceled += OnLeftMouseUp;
-
     }
 
     private void OnLeftMouseUp(InputAction.CallbackContext context)
@@ -55,24 +53,41 @@ public class ObjectInspect : MonoBehaviour,IInteractables
     private void Update()
     {
         MouseInput();
-        _targetPos = _camera.ViewportToWorldPoint(new Vector3(0.5f,0.5f,distFromCam));
-        
-        switch (isInspecting)
+        _targetPos = _objectCamera.ViewportToWorldPoint(new Vector3(0.5f,0.5f,distFromCam));
+
+        if (isInspecting)
         {
-            case true:
-                EventManager.OnDisableAllInput();
-                transform.position = Vector3.Slerp(transform.position, _targetPos, lerp);
-                if (mouseDown)
-                {
-                    transform.Rotate(_rotationVector * (rotSpeed * Time.deltaTime), Space.World);
-                }
-                break;
-            case false:
-                EventManager.OnEnableAllInput();
-                transform.ResetRotation(_originalRot);
-                transform.position = Vector3.Slerp(transform.position, _originalPos, lerp);
-                break;
+            //GameManager.Instance.DisableInput();
+            transform.position = Vector3.Slerp(_originalPos, _targetPos, lerp);
+            
+            if (mouseDown)
+                transform.Rotate(_rotationVector * (rotSpeed * Time.deltaTime), Space.World);
+            
         }
+        else
+        {
+            //GameManager.Instance.EnableInput();
+            transform.ResetRotation(_originalRot);
+            transform.position = Vector3.Slerp(transform.position, _originalPos, lerp);
+        }
+        
+        
+        // switch (isInspecting)
+        // {
+        //     case true:
+        //         GameManager.Instance.DisableInput();
+        //         transform.position = Vector3.Slerp(transform.position, _targetPos, lerp);
+        //         if (mouseDown)
+        //         {
+        //             transform.Rotate(_rotationVector * (rotSpeed * Time.deltaTime), Space.World);
+        //         }
+        //         break;
+        //     case false:
+        //         GameManager.Instance.EnableInput();
+        //         transform.ResetRotation(_originalRot);
+        //         transform.position = Vector3.Slerp(transform.position, _originalPos, lerp);
+        //         break;
+        // }
         
     }
 
@@ -82,9 +97,11 @@ public class ObjectInspect : MonoBehaviour,IInteractables
         {
             case true:
                 isInspecting = false;
+                _objectCamera.depth = -100;
                 break;
             case false:
                 isInspecting = true;
+                _objectCamera.depth = 100;
                 break;
         }
     }

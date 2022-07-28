@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eaff810df5175f45a19cf51df4400e4, type: 3}
   m_Name: Fully Auto
   m_EditorClassIdentifier: 
-  weaponDamage: 36
+  weaponDamage: 32
   chargeDamage: 0
   headshotMultiplier: 1.8
-  fireRate: 0.2
+  fireRate: 0.1
   maxDistance: 100
   overheatSpeed: 15
   maxHeatCapacity: 100
   minHeatCapacity: 0
   minHeatThreshold: 25
-  fireSound: {fileID: 8300000, guid: 5ff5bd936a30a904da907f35c8dd382e, type: 3}
+  fireSound: {fileID: 8300000, guid: 8602b7d5cd15c1943a50aa53f171c8cf, type: 3}
   bulletTracer: {fileID: 1743705154906862992, guid: e754d8650267ba346bf66dee6e9bc639,
     type: 3}

@@ -29,6 +29,7 @@ public class WeaponCreator : MonoBehaviour
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
+    public ProceduralRecoil proceduralRecoil;
     private Camera _camera;
 
     [SerializeField]private AudioSource audioSource;
@@ -50,15 +51,7 @@ public class WeaponCreator : MonoBehaviour
     [SerializeField]private GameObject AmmoPanel;
     [SerializeField]private TextMeshProUGUI AmmoCountCurrent;
     [SerializeField]private TextMeshProUGUI AmmoCountReserves;
-    
-    [Header("EnergyWeapon Parameters")]
-    public bool overheated;
-    public float currentHeatValue;
-    [SerializeField]private GameObject EnergyWeaponPanel;
-    [SerializeField]private Image CurrentHeatValue;
-    public float fillSpeed = 2;
-    public float target = 1;
-    
+
     [Header("Burst Parameters")] 
     [SerializeField]private bool isBursting;
     [SerializeField]private int shotsPerBurst;
@@ -78,6 +71,7 @@ public class WeaponCreator : MonoBehaviour
     [SerializeField]private float recoilX;
     [SerializeField]private float recoilY;
     [SerializeField]private float recoilZ;
+    [SerializeField]private float kickBackZ;
     
     [Header("Recoil Parameters")]
     [SerializeField]private float snappiness;
@@ -85,22 +79,22 @@ public class WeaponCreator : MonoBehaviour
 
     private void OnEnable()
     {
-        _anim.Play("RifleEquipAnimation");
-        AmmoHUD.SetActive(true);
+        //_anim.Play("RifleEquipAnimation");
         AmmoPanel.SetActive(true);
         UpdateAmmoCount(currentAmmoCount,reservesAmmoCount);
     }
     
     private void OnDisable()
     {
-        _anim.keepAnimatorControllerStateOnDisable = true;
+        AmmoPanel.SetActive(false);
+        //_anim.keepAnimatorControllerStateOnDisable = true;
         isBursting = false;
         isReloading = false;
     }
 
     private void Awake()
     {
-        _anim = GetComponent<Animator>();
+        //_anim = GetComponent<Animator>();
         trailPool = GetComponent<BulletTrailPool>();
         _camera = Camera.main;
 
@@ -114,7 +108,7 @@ public class WeaponCreator : MonoBehaviour
     private void Start()
     {
         defaultFOV = _camera.fieldOfView;
-        _anim.Play("RifleEquipAnimation");
+        //_anim.Play("RifleEquipAnimation");
         
         UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
     }
@@ -126,7 +120,9 @@ public class WeaponCreator : MonoBehaviour
     
     private void Update()
     {
-        recoilScript.GunRotation(returnSpeed, snappiness);
+        //recoilScript.GunRotation(returnSpeed, snappiness);
+        proceduralRecoil.UpdatePositionRotation(snappiness, returnSpeed);
+        
         if (canAim)
         {
             HandleAim();
@@ -136,8 +132,7 @@ public class WeaponCreator : MonoBehaviour
         {
             //Enable UI for this weapon type
             AmmoPanel.SetActive(true);
-            EnergyWeaponPanel.SetActive(false);
-            
+
             if (PlayerInputManager.InputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
                 Reload();
             
@@ -160,27 +155,6 @@ public class WeaponCreator : MonoBehaviour
                     break;
             }
         }
-        
-        if (myWeaponType == WeaponTypes.EnergyWeapon)
-        {
-            EnergyWeaponPanel.SetActive(true);
-            AmmoPanel.SetActive(false);
-            UpdateHeatBar(currentHeatValue, weapons.maxHeatCapacity);
-
-            if (myFireModes == FireModes.FullyAutomatic)
-            {
-                if (firing && !overheated)
-                {
-                    EnergyShoot();
-                    WeaponOverHeat();
-                }  
-            }
-            
-            if (!firing)
-                WeaponCooldown();
-            if (overheated)
-                firing = false;
-        }
     }
     
     private void Shoot()
@@ -192,16 +166,15 @@ public class WeaponCreator : MonoBehaviour
             currentAmmoCount--;
             
             UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
-
+            
             if (isAiming)
             {
-                recoilScript.RecoilFire(adsRecoilX, adsRecoilY, adsRecoilZ);
+                proceduralRecoil.Recoil(adsRecoilX, adsRecoilY,adsRecoilZ, kickBackZ);
             }
             else
             {
-                recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
+                proceduralRecoil.Recoil(recoilX, recoilY,recoilZ, kickBackZ);
             }
-           
 
             //Play sound here
             SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);
@@ -212,10 +185,7 @@ public class WeaponCreator : MonoBehaviour
             RaycastHit hit;
             Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
-            
-            //Spawn Tracer
-            //TrailRenderer trailRenderer = Instantiate(weapons.bulletTracer, firePoint.position, quaternion.identity);
-            
+
             TrailRenderer trail = trailPool.GetPooledObject();
             if (trail != null)
             {
@@ -224,8 +194,6 @@ public class WeaponCreator : MonoBehaviour
                 trail.gameObject.SetActive(true);
                 StartCoroutine(SpawnTrail(trail, hit));
             }
-            
-            
             
             //spawn decal
             GameObject decal = bulletPool.GetPooledObject();
@@ -269,6 +237,7 @@ public class WeaponCreator : MonoBehaviour
         }
 
         trail.transform.position = hit.point;
+        trail.gameObject.SetActive(false);
     }
     
     private void Reload()
@@ -279,7 +248,7 @@ public class WeaponCreator : MonoBehaviour
             return;
         }
         
-        _anim.Play("BigRifle_Reload_01_Temp");
+        //_anim.Play("BigRifle_Reload_01_Temp");
     }
 
     #region UI Update Methods
@@ -289,13 +258,7 @@ public class WeaponCreator : MonoBehaviour
         AmmoCountCurrent.text = currentAmmo.ToString();
         AmmoCountReserves.text = reserveAmmo.ToString();
     }
-    
-    private void UpdateHeatBar(float currentHeatValue, float maxHeatValue)
-    {
-        target = currentHeatValue / maxHeatValue;
-        CurrentHeatValue.fillAmount = Mathf.MoveTowards(CurrentHeatValue.fillAmount, target, fillSpeed * Time.deltaTime);
-    }
-    
+
     #endregion
 
     #region ADS Methods
@@ -343,89 +306,6 @@ public class WeaponCreator : MonoBehaviour
     
 
     #endregion
-    
-    #region Energy Weapon Methods
-    
-    private void EnergyShoot()
-    {
-        if (Time.time > _nextFire)
-        {
-            _nextFire = Time.time + weapons.fireRate;
-
-            if (isAiming)
-                recoilScript.RecoilFire(adsRecoilX, adsRecoilY, adsRecoilZ);
-            else
-                recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
-
-            //Play sound here
-            audioSource.PlayOneShot(weapons.fireSound);
-
-            //Play muzzle flash here
-            
-            RaycastHit hit;
-            Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            if (!Physics.Raycast(ray, out hit, weapons.maxDistance))return;
-            
-            //Spawn Tracer
-            TrailRenderer trailRenderer = Instantiate(weapons.bulletTracer, firePoint.position, quaternion.identity);
-            StartCoroutine(SpawnTrail(trailRenderer, hit));
-            
-            //spawn decal
-            GameObject decal = bulletPool.GetPooledObject();
-            
-            if (decal != null)
-            {
-                decal.transform.position = hit.point;
-                decal.SetActive(true);
-                decal.transform.rotation = Quaternion.LookRotation(hit.normal);
-            }
-            
-            var isDamageable = hit.collider.GetComponent<IDamageable>();
-
-            if (hit.collider.GetComponent<IDamageable>() == null)return;
-
-            if (hit.collider.CompareTag("Head"))
-            {
-                isDamageable.TakeDamage(weapons.weaponDamage * weapons.headshotMultiplier);
-            }
-            else
-            {
-                isDamageable.TakeDamage(weapons.weaponDamage);
-            }
-        }
-    }
-    
-    private void WeaponOverHeat()
-    {
-        currentHeatValue += weapons.overheatSpeed * Time.deltaTime;
-
-        if (currentHeatValue > weapons.maxHeatCapacity)
-        {
-            currentHeatValue = weapons.maxHeatCapacity;
-        }
-
-        if (currentHeatValue == weapons.maxHeatCapacity)
-        {
-            overheated = true;
-        }
-    }
-    
-    private void WeaponCooldown()
-    {
-        currentHeatValue -= weapons.overheatSpeed * Time.deltaTime;
-
-        if (currentHeatValue <= weapons.minHeatThreshold)
-        {
-            overheated = false;
-        }
-
-        if (currentHeatValue < weapons.minHeatCapacity)
-        {
-            currentHeatValue = weapons.minHeatCapacity;
-        }
-    }
-
-    #endregion
 
     #region Burst Weapon Methods
     
@@ -441,13 +321,13 @@ public class WeaponCreator : MonoBehaviour
 
         if (isAiming)
         {
-            recoilScript.RecoilFire(adsRecoilX, adsRecoilY, adsRecoilZ);
+            proceduralRecoil.Recoil(adsRecoilX, adsRecoilY,adsRecoilZ, kickBackZ);
         }
         else
         {
-            recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
+            proceduralRecoil.Recoil(recoilX, recoilY,recoilZ, kickBackZ);
         }
-           
+       
 
         //Play sound here
         SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);

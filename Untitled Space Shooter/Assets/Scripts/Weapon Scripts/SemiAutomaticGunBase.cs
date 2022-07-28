@@ -3,6 +3,7 @@ using Core;
 using Core.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PlayerInputManager = Core.PlayerInputManager;
 
 [RequireComponent(typeof(AudioSource))]
 public class SemiAutomaticGunBase : MonoBehaviour
@@ -55,17 +56,17 @@ public class SemiAutomaticGunBase : MonoBehaviour
             currentAmmoCount = 0;
         }
 
-        if (InputHandler.instance.inputActions.Player.Fire.WasPressedThisFrame())
+        if ( PlayerInputManager.InputActions.Player.Fire.WasPressedThisFrame())
         {
             isFiring = true;
         }
         
-        if (InputHandler.instance.inputActions.Player.Fire.WasReleasedThisFrame())
+        if ( PlayerInputManager.InputActions.Player.Fire.WasReleasedThisFrame())
         {
             isFiring = false;
         }
         
-        if (InputHandler.instance.inputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
+        if ( PlayerInputManager.InputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
         {
             Reload();
         }

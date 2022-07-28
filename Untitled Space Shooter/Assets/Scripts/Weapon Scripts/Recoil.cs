@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,5 +17,10 @@ public class Recoil : MonoBehaviour
     public void RecoilFire(float recoilX,float recoilY,float recoilZ)
     {
         _targetRotation += new Vector3(recoilX, Random.Range(-recoilY, recoilY), Random.Range(-recoilZ, recoilZ));
+    }
+
+    private void Start()
+    {
+        
     }
 }

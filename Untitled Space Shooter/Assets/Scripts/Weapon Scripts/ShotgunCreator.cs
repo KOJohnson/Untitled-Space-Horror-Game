@@ -14,6 +14,7 @@ public class ShotgunCreator : MonoBehaviour
     public BulletDecalPool bulletPool;
     public NormalWeapons weapons;
     public Recoil recoilScript;
+    public ProceduralRecoil proceduralRecoil;
     public Camera camera;
     
     [SerializeField]private AudioSource audioSource;
@@ -44,6 +45,7 @@ public class ShotgunCreator : MonoBehaviour
     [SerializeField]private float recoilX;
     [SerializeField]private float recoilY;
     [SerializeField]private float recoilZ;
+    [SerializeField]private float kickBackZ;
     
     [Header("Recoil Parameters")]
     [SerializeField]private float snappiness;
@@ -77,8 +79,9 @@ public class ShotgunCreator : MonoBehaviour
     
     void Update()
     {
-        recoilScript.GunRotation(returnSpeed, snappiness);
         AmmoPanel.SetActive(true);
+        
+        proceduralRecoil.UpdatePositionRotation(snappiness, returnSpeed);
         
         if (PlayerInputManager.InputActions.Player.Reload.WasPressedThisFrame() && currentAmmoCount < maxAmmoAmount)
             Reload();
@@ -101,7 +104,7 @@ public class ShotgunCreator : MonoBehaviour
             
             UpdateAmmoCount(currentAmmoCount, reservesAmmoCount);
             
-            recoilScript.RecoilFire(recoilX, recoilY, recoilZ);
+            proceduralRecoil.Recoil(recoilX, recoilY, recoilZ, kickBackZ);
             
             SoundManager.Instance.PlayAudio(audioSource,weapons.fireSound);
             //audioSource.PlayOneShot(weapons.fireSound);

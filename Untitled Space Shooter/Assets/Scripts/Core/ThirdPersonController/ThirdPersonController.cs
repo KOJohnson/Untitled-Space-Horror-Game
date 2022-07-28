@@ -58,11 +58,11 @@ namespace Core.ThirdPersonController
         {
             characterController = GetComponent<CharacterController>();
 
-            InputHandler.instance.inputActions.Player.Aim.performed += _ => isAiming = true;
-            InputHandler.instance.inputActions.Player.Aim.canceled += _ => isAiming = false;
+            PlayerInputManager.InputActions.Player.Aim.performed += _ => isAiming = true;
+            PlayerInputManager.InputActions.Player.Aim.canceled += _ => isAiming = false;
             
-            InputHandler.instance.inputActions.Player.Sprint.performed += _ => isSprinting = true;
-            InputHandler.instance.inputActions.Player.Sprint.canceled += _ => isSprinting = false;
+            PlayerInputManager.InputActions.Player.Sprint.performed += _ => isSprinting = true;
+            PlayerInputManager.InputActions.Player.Sprint.canceled += _ => isSprinting = false;
 
             velocityZHash = Animator.StringToHash("velocityZ");
             velocityXHash = Animator.StringToHash("velocityX");
@@ -72,7 +72,7 @@ namespace Core.ThirdPersonController
         private void Update()
         {
             isPlayerGrounded = IsGrounded();
-            movementInput = InputHandler.instance.inputActions.Player.Move.ReadValue<Vector2>();
+            movementInput = PlayerInputManager.Instance.PlayerMovementInput();
             
             HandleGravity();
             PlayerMovement();

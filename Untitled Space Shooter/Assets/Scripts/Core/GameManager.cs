@@ -1,25 +1,18 @@
 using System;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 namespace Core
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance;
-        public UnityEvent myEvent;
-
-        public Transform player;
-
-        public int enemyCount;
-
-        public bool waveOneComplete;
-        public bool waveTwoComplete;
-        public bool waveThreeComplete;
-
-        [SerializeField]private bool disableMovement;
     
-        [SerializeField]private bool disablePlayerInput;
+        public Transform player;
+        public int enemyCount;
+        public bool onPause;
 
         private void OnEnable()
         {
@@ -48,26 +41,52 @@ namespace Core
 
         private void Update()
         {
-            if (disableMovement)
+            if (PlayerInputManager.InputActions.Menu.Pause.WasPerformedThisFrame())
             {
-                EventManager.OnDisableAllMovement();
+                if (onPause)
+                {
+                    ResumeGame();
+                }
+                else
+                {
+                    PauseGame();
+                }
             }
-            else
-            {
-                EventManager.OnEnableAllMovement();
-            }
-        
-            if (disablePlayerInput)
-            {
-                EventManager.OnDisableAllInput();
-            }
-            else
-            {
-                EventManager.OnEnableAllInput();
-            }
-
         }
 
+        private void PauseGame()
+        {
+            DisableInput();
+            Time.timeScale = 0;
+            onPause = true;
+
+            /////EVENTS/////
+            //enable pause menu ui
+            //disable all player movement 
+            //disable all HUD
+        }
+
+        private void ResumeGame()
+        {
+           EnableInput();
+            Time.timeScale = 1;
+            onPause = false;
+
+            /////EVENTS/////
+            //disable pause menu ui
+            //enable all player movement 
+            //enable all HUD
+        }
+
+        public void DisableInput()
+        {
+            PlayerInputManager.InputActions.Player.Disable();
+        }
+        
+        public void EnableInput()
+        {
+            PlayerInputManager.InputActions.Player.Enable();
+        }
         private void MouseCursorOn()
         {
             Cursor.visible = true;

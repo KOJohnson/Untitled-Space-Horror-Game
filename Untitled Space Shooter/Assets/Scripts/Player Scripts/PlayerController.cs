@@ -26,8 +26,9 @@ public class PlayerController : MonoBehaviour
     [Header("Speed Parameters")]
     [SerializeField] private bool useAcceleration;
     [SerializeField] private float airSpeed = 4f;
+    [SerializeField] private float runSpeed = 7f;
     [SerializeField] private float currentSpeed;
-    [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float maxSpeed;
     [SerializeField] private float minSpeed;
     [SerializeField] private float acceleration = 5f;
     [SerializeField] private float deceleration = 5f;
@@ -45,7 +46,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int jumpCount = 2;
     [SerializeField] private float maxJumpHeight = 2.0f;
     [SerializeField] private float maxJumpTime = 0.5f;
-    [SerializeField] private float initialJumpVelocity;
+    [SerializeField] private float initialJumpVelocity = 12f;
     [SerializeField] private bool isJumpPressed;
 
     [Header("Crouch Settings")] [Range(0, 1.0f)]
@@ -67,11 +68,16 @@ public class PlayerController : MonoBehaviour
     
     [Header("Footstep Settings")]
     [Range(0, 10)]public float minimumSpeedThreshold;
+    [Range(-100,100)] public float minLandThreshhold;
     [Range(0,1)][SerializeField]private float fireRate = 0.9f;
     [SerializeField]private AudioClip[] metalFootSteps;
     [SerializeField]private AudioClip[] metalJump;
     [SerializeField]private AudioClip[] metalLand;
     private float _nextFootstepFire;
+
+    [Header("Player Voice")] 
+    [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip landSound;
 
     [Header("Audio Settings")] 
     public AudioSource audioSource;
@@ -96,7 +102,7 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<CapsuleCollider>();
         _camera = Camera.main;
-        SetupJump();
+        //SetupJump();
     }
 
     private void Start()
@@ -139,6 +145,8 @@ public class PlayerController : MonoBehaviour
 
     private void MovePlayer()
     {
+        currentSpeed = IsGrounded() ? runSpeed : airSpeed;
+        
         if (IsGrounded())
         {
             _characterController.Move(_movementDirection * (currentSpeed * Time.deltaTime));
@@ -147,6 +155,14 @@ public class PlayerController : MonoBehaviour
         {
             _characterController.Move(_movementDirection * (airSpeed * Time.deltaTime));
         }
+        
+        if (!useAcceleration)
+        {
+            currentSpeed = maxSpeed;
+            return;
+        }
+        if (_movementInput != Vector3.zero) PlayerAcceleration();
+        else currentSpeed = 0;
     }
 
     private void HandleFootsteps()
@@ -215,22 +231,15 @@ public class PlayerController : MonoBehaviour
             _playerVelocity.y = -2f;
         }
         
+        
         _playerVelocity.y += gravityValue * Time.deltaTime;
         _characterController.Move(_playerVelocity * Time.deltaTime);
     }
     
     private void MovementInput()
     {
-        _movementInput = PlayerInputManager.InputActions.Player.Move.ReadValue<Vector2>();
+        _movementInput = PlayerInputManager.Instance.PlayerMovementInput();
         _movementDirection = transform.right * _movementInput.x + transform.forward * _movementInput.y;
-
-        if (!useAcceleration)
-        {
-            currentSpeed = maxSpeed;
-            return;
-        }
-        if (_movementInput != Vector3.zero) PlayerAcceleration();
-        else currentSpeed = 0;
     }
 
     private void AdjustHeight(float height)
@@ -249,22 +258,23 @@ public class PlayerController : MonoBehaviour
         if (jumpCount > 0 && PlayerInputManager.InputActions.Player.Jump.WasPressedThisFrame() && groundedPlayer)
         {
             jumpCount = 1;
+            SoundManager.Instance.PlayAudio(audioSource, jumpSound);
             SoundManager.Instance.PlayAudio(audioSource,metalJump[Random.Range(0, metalJump.Length -1)]);
             _playerVelocity.y = initialJumpVelocity;
         }
-
+        
         if (isHeadHitting && !groundedPlayer)
         {
             _playerVelocity.y = downForce;
         }
     }
     
-    private void SetupJump()
-    {
-        float timeToApex = maxJumpTime / 2;
-        //gravityValue = (-2 * maxJumpHeight) / Mathf.Pow(timeToApex, 2);
-        initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
-    }
+    // private void SetupJump()
+    // {
+    //     float timeToApex = maxJumpTime / 2;
+    //     //gravityValue = (-2 * maxJumpHeight) / Mathf.Pow(timeToApex, 2);
+    //     initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
+    // }
     
     private void CrouchInputHandler()
     {
@@ -295,14 +305,11 @@ public class PlayerController : MonoBehaviour
 
 
     #region Event Calls
-
-    public void RbAddForce(float force)
-    {
-        _rigidbody.AddForce(transform.up * force, ForceMode.Impulse);
-    }
+    
     public void AddForce(float force)
     {
         _playerVelocity.y = force;
+        SoundManager.Instance.PlayAudio(audioSource, jumpSound);
     }
     
     private void DisableMovement()
